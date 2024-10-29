@@ -1,0 +1,17 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[remote "origin"]
+	url = git@github.com:AleannLab/maxaiapp.git
+	fetch = +refs/heads/main:refs/remotes/origin/main
+	pushurl = git@github.com:AleannLab/maxaiapp.git
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
+	vscode-merge-base = origin/main
+[branch "app"]
+	vscode-merge-base = origin/main
