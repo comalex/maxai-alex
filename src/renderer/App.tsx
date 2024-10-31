@@ -11,7 +11,7 @@ function Webview({ src, id }) {
   // Function to get webview HTML
   return (
     <div className="">
-      <button onClick={getWebviewHTML}>Get Webview HTML</button>
+      {/* <button onClick={getWebviewHTML}>Get Webview HTML</button> */}
       <webview
         id={id}
         src={src}

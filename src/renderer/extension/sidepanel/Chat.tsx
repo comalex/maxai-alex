@@ -4,7 +4,6 @@ import {
   ChevronDownIcon,
   ChevronUpIcon
 } from "@chakra-ui/icons";
-import browserRuntime from '../browserRuntime';
 import {
   Box,
   Button,
@@ -1624,7 +1623,7 @@ const Chat: React.FC<ChatProps> = ({ chatJwtToken }) => {
   }
 
   if (isFlashScreen) {
-    return <>Test: <MainLoader /></>;
+    return <MainLoader />;
   }
 
   if (!user_id) {

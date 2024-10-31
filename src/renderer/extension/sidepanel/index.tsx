@@ -314,7 +314,7 @@ function IndexSidePanel() {
       setAccountIdIsLoading(true);
       try {
         const data = await api.retrieveDataFromPage();
-        console.log("data", data);
+        console.log("retrieveDataFromPage data", data);
         if (!data.accountId) {
           toast({
             title: "Opening OnlyFans page...",
@@ -328,7 +328,7 @@ function IndexSidePanel() {
         setAccountId(data.accountId);
         setAccountName(data.accountName);
       } catch (error) {
-    
+
         logger.debug(`Failed to fetch accountId ${error}`);
       } finally {
         setAccountIdIsLoading(false);

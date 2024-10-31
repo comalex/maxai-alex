@@ -1,10 +1,12 @@
+import { sendMessage, onMessage } from "../../background/bus";
+
 import { useState, useEffect } from "react";
 import { EXTENSION_MESSAGE_TYPES } from "../../config/constants";
 import type { ExtensionMessage } from "../../config/types";
 
 import { useGlobal } from "./useGlobal";
 import useTimeoutNotification from "./useTimeoutNotification";
-import browserRuntime from "../../browserRuntime";
+// import browserRuntime from "../../browserRuntime";
 
 interface GenerateAudioPayload {
   jwt: string;
@@ -30,11 +32,15 @@ const useAudioGenerator = () => {
     setIsAudioGenerating(false);
   };
 
-  const onMessage = (
+  const _onMessage = (
     message: ExtensionMessage,
     sender: browserRuntime.MessageSender,
     sendResponse: (response: any) => void
   ): void => {
+    if (!message.socketApi) {
+      console.log("pass in onMessageSockets");
+      return;
+    }
     // logger.debug("useAudioGenerator onMessage", message);
     const { type } = message;
     switch (type) {
@@ -47,17 +53,15 @@ const useAudioGenerator = () => {
         setAudioUrl(file_url);
         break;
       }
-      default: {
-        sendResponse({ status: "Message received" });
-      }
+      
     }
   };
 
   useEffect(() => {
-    browserRuntime.onMessage.addListener(onMessage);
+    onMessage.addListener(_onMessage);
 
     return () => {
-      browserRuntime.onMessage.removeListener(onMessage);
+      onMessage.removeListener(_onMessage);
     };
   }, []);
 
@@ -71,7 +75,7 @@ const useAudioGenerator = () => {
       model: selectedModel?.uuid,
       user_id: userId
     };
-    browserRuntime.sendMessage({
+    sendMessage({
       type: EXTENSION_MESSAGE_TYPES.GENERATE_AUDIO,
       payload
     });
