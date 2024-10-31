@@ -8,3 +8,13 @@ const contentScript = fs.readFileSync(contentScriptPath, 'utf8');
 
 // Run the content script
 eval(contentScript);
+
+
+// function setLocalStorageItem(key, value) {
+//   localStorage.setItem(key, value);
+// }
+
+// Expose the function to the WebView
+// window.setLocalStorageItem = setLocalStorageItem;
+
+// window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);

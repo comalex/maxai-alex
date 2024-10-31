@@ -6,6 +6,7 @@ console.log(session);
 console.log("Preload script loaded");
 
 const electronHandler = {
+  session,
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       console.log("Sending message on channel:", channel);
@@ -35,18 +36,9 @@ const electronHandler = {
     // }
     // return 'Webview not found';
   },
-  setCookies: (cookies: any[]) => {
-    // return Promise.all(
-    //   cookies.map((cookie) => {
-    //     // debugger
-    //     // Correctly using the default session
-    //     // return session?.defaultSession?.cookies?.set(cookie).catch((error) =>
-    //     //   console.error('Error setting cookie:', error)
-    //     // );
-    //   })
-    // );
-    return;
-  },
+  setCookie: (cookie) => ipcRenderer.invoke('set-cookie', cookie),
+  createSession: (cookies) => ipcRenderer.invoke('create-session', cookies),
+
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

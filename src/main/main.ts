@@ -18,6 +18,19 @@ class AppUpdater {
 
 let mainWindow = null;
 
+ipcMain.handle('create-session', async (event, cookies) => {
+    const newSession = session.fromPartition(`persist:my-partition-${Date.now()}`);
+
+    // Set cookies for the new session
+    for (const cookie of cookies) {
+        await newSession.cookies.set(cookie).catch(err => {
+            console.error('Error setting cookie:', err);
+        });
+    }
+
+    return newSession; // Return the new session
+});
+
 ipcMain.handle('set-cookies', async (event, cookies) => {
   try {
     // Set cookies in both the default and custom sessions
@@ -77,17 +90,6 @@ const createWindow = async () => {
   });
 
 
-  ipcMain.handle('get-webview-html', async (event, webviewId) => {
-    const webContents = require('electron').webContents;
-    console.log(webContents.getAllWebContents() );
-    const webview = webContents.getAllWebContents().find((w) => w.id === webviewId);
-
-    if (webview) {
-      const html = await webview.executeJavaScript('document.documentElement.outerHTML');
-      return html;
-    }
-    return 'Webview not found';
-  });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
@@ -121,8 +123,52 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
 app.whenReady().then(createWindow).catch(console.log);
+ipcMain.on('ipc-example', async (event, ...args) => {
+  console.log(`Received message on channel 'ipc-example':`, ...args);
+
+  const session = require('electron').session.fromPartition('persist:tab-1');
+  console.log("session", session)
+  const cookies = [
+    {
+      url: 'https://onlyfans.com',
+      name: 'sess',
+      value: '42i1g4qtg99el52uki0vcghc1d',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: '_cfuvid',
+      value: '6j0Vm.IsWq9VRx7fq8wVVKsSCWpjJrIsvWbUm3RV93M-1730407033603-0.0.1.1-604800000',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: 'lang',
+      value: 'en',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: 'auth_id',
+      value: '394757173',
+      httpOnly: true,
+      secure: true,
+    },
+  ];
+
+  try {
+    await Promise.all(cookies.map(cookie => session.cookies.set(cookie)));
+    cookies.forEach(cookie => console.log(`Cookie set: ${cookie.name}`));
+  } catch (error) {
+    console.error('Error setting cookies:', error);
+  }
+});
