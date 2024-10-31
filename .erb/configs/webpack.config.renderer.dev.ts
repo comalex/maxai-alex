@@ -63,6 +63,12 @@ const configuration: webpack.Configuration = {
   module: {
     rules: [
       {
+        test: /\.json$/,
+        loader: 'json5-loader',
+        type: 'javascript/auto',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.s?(c|a)ss$/,
         use: [
           'style-loader',
