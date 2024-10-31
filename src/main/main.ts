@@ -71,12 +71,12 @@ const createWindow = async () => {
       contextIsolation: true,
       // enableRemoteModule: true,
       webviewTag: true,
-      sandbox: false, 
+      sandbox: false,
       // partition: 'persist:tab-1',
     },
   });
 
-  
+
   ipcMain.handle('get-webview-html', async (event, webviewId) => {
     const webContents = require('electron').webContents;
     console.log(webContents.getAllWebContents() );
@@ -91,7 +91,7 @@ const createWindow = async () => {
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
-  
+
   // mainWindow.webContents.on('did-finish-load', async () => {
   //   const cookies = [
   //     { url: 'https://onlyfans.com', name: 'sess', value: '2fbcilfq7a7e0ms68h3jd95n7b', httpOnly: true, secure: true },
@@ -121,7 +121,6 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-app.disableHardwareAcceleration();
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
