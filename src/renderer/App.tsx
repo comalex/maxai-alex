@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import './App.css';
 import SidePannel from './extension/sidepanel/index';
 import { getWebviewHTML } from "./utils";
-// import path from 'path';
-// import { remote } from 'electron'; // Make sure to import remote if not already
 
 function Webview({ src, id }) {
   const partitionId = `persist:${id}`; // Directly set unique partition ID
@@ -19,6 +17,7 @@ function Webview({ src, id }) {
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
         style={{ height: '100vh' }}
+        preload="./webview-preload.js"
       />
     </div>
   );
