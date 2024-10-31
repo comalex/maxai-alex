@@ -30,7 +30,14 @@ const apiFetch = async (url: string, options: any) => {
   } catch (error) {
     console.error('Failed to send log to Datadog:', error);
   }
-  const response = await axios({ url, ...options });
+
+  const response = await axios({
+    url,
+    method: options.method || 'GET',
+    headers: options.headers,
+    data: options.body,
+  });
+
   return {
     json: async () => response.data,
     ok: response.status >= 200 && response.status < 300,

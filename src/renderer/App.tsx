@@ -51,7 +51,7 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ flex: '0 0 30%', order: 1 }}>
+      <div style={{ flex: '0 0 30%', order: 1, overflow: 'auto' }}>
         <SidePannel />
       </div>
       <div className="tab-bar1" style={{ flex: '0 0 70%', minHeight: '1000px' }}>
