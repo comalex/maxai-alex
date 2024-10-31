@@ -33,7 +33,10 @@ _onMessage.addListener(
         break;
       }
       case EXTENSION_MESSAGE_TYPES.READ_HTML: {
-        sendResponse(parseHtml());
+        parseHtml().then(response => {
+          console.log("Parsed HTML response:", response);
+          sendResponse(response);
+        });
         break;
       }
       case EXTENSION_MESSAGE_TYPES.ADD_LISTENERS: {

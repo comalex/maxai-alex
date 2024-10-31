@@ -355,10 +355,10 @@ export const parseSubsFun = () => {
   return subs;
 };
 
-async function getDocument(): Promise<Document> {
+export async function getDocument(): Promise<Document> {
   const parser = new DOMParser();
   const htmlString = await getWebviewHTML("tab-1");
-  console.log("htmlString", htmlString)
+  // console.log("htmlString", htmlString)
   return parser.parseFromString(htmlString || '', 'text/html');
 }
 
@@ -367,7 +367,7 @@ async function getDocument(): Promise<Document> {
 export const parseMessagesFromSelectedThread = async (): Message => {
   const messages: OnlyFansMessage[] = [];
   const doc = await getDocument();
-  console.log("doc", doc)
+  // console.log("doc", doc)
   let currentUsernameElement = doc.querySelector(
     "div.current span.g-user-name"
   );

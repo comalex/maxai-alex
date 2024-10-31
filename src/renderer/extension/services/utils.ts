@@ -69,24 +69,26 @@ export const checkCurrentUrl = async (regex: RegExp) => {
 };
 
 export const retrieveMessageHistory = async (): Promise<Message> => {
-  const content = await sendMessage({
-    type: EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES,
-    tab: "tab-1",
-  });
-  return content;
-  // try {
-  //   const { success, data: messages } = await sendToBackground({
-  //     name: "retrieve-thread-messages"
-  //   });
-  //   if (success) {
-  //     return messages;
-  //   }
-  //   throw new Error("retrieveMessageHistory error");
-  // } catch (error) {
-  //   console.log({ error });
-  //   sentry.captureException(new Error(error));
-  //   return null;
-  // }
+  // const content = await sendMessage({
+  //   type: EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES,
+  //   tab: "tab-1",
+  // });
+  // return content;
+  try {
+    const { success, data: messages } = await sendToBackground({
+      name: "retrieve-thread-messages"
+    });
+
+    console.log("messages", messages)
+    if (success) {
+      return messages;
+    }
+    throw new Error("retrieveMessageHistory error");
+  } catch (error) {
+    console.log({ error });
+    sentry.captureException(new Error(error));
+    return null;
+  }
 };
 
 export const retrieveSubsHistory = async (): Promise<any> => {

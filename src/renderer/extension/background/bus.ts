@@ -45,10 +45,13 @@ class EventBus {
     this.listeners.forEach((listener) => {
       // Allow listener to call sendResponse asynchronously
       const sendResponseWrapper: SendResponse = (response: Response) => {
-        // if (!sendResponse.called) {
-        //   sendResponse.called = true;
-        //   sendResponse(response);
-        // }
+        console.log("Message received:", message);
+        console.log("Sender details:", sender);
+        console.log("Response before sending:", response);
+        if (!sendResponse.called) {
+          sendResponse.called = true;
+          sendResponse(response);
+        }
       };
       // sendResponseWrapper.called = false;
       listener(message, sender, sendResponseWrapper);
@@ -72,11 +75,16 @@ export function sendMessage(message: Message): Promise<any> {
 
     // sendResponse function to handle asynchronous responses
     const sendResponse: SendResponse = (response: Response) => {
-      if (response.success) {
-        resolve(response.data);
-      } else {
-        reject(new Error(response.error));
-      }
+      console.log("sendResponse function called");
+      console.log("Response received:", response);
+      resolve(response);
+      // if (response.success) {
+      //   console.log("Response was successful, resolving with data:", response.data);
+      //   resolve(response.data);
+      // } else {
+      //   console.error("Response was unsuccessful, rejecting with error:", response.error);
+      //   reject(new Error(response.error));
+      // }
     };
 
     // Initialize the response as not called yet

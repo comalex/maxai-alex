@@ -314,6 +314,7 @@ function IndexSidePanel() {
       setAccountIdIsLoading(true);
       try {
         const data = await api.retrieveDataFromPage();
+        console.log("data", data);
         if (!data.accountId) {
           toast({
             title: "Opening OnlyFans page...",
@@ -327,6 +328,7 @@ function IndexSidePanel() {
         setAccountId(data.accountId);
         setAccountName(data.accountName);
       } catch (error) {
+    
         logger.debug(`Failed to fetch accountId ${error}`);
       } finally {
         setAccountIdIsLoading(false);
@@ -390,7 +392,7 @@ function IndexSidePanel() {
     // we want to store in local store selected model since there is some bug
     // setStoredModel(model);
     console.log("Model:", model)
-    setSelectedModel("test");
+    setSelectedModel(model);
   };
 
   const login = async ({

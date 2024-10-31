@@ -62,6 +62,7 @@ export const api = {
           type: EXTENSION_MESSAGE_TYPES.READ_HTML
         }
       });
+      console.log("RES: ", success, data);
       if (success) {
         return data;
       }

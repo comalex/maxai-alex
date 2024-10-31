@@ -10,7 +10,7 @@ function Webview({ src, id }) {
 
   // Function to get webview HTML
   return (
-    <div className="webview-container">
+    <div className="">
       <button onClick={getWebviewHTML}>Get Webview HTML</button>
       <webview
         id={id}
@@ -18,6 +18,7 @@ function Webview({ src, id }) {
         className="webview-content"
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+        style={{ height: '100vh' }}
       />
     </div>
   );
@@ -49,24 +50,15 @@ export default function App() {
   const activeTabData = tabs.find(tab => tab.id === activeTab);
 
   return (
-    <div  style={{ display: 'flex' }}>
-      <div style={{ flex: 1, order: 1 }}>
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <div style={{ flex: '0 0 30%', order: 1 }}>
         <SidePannel />
       </div>
-      <div className="tab-bar" style={{ flex: 1 }}>
+      <div className="tab-bar1" style={{ flex: '0 0 70%', minHeight: '1000px' }}>
         {tabs.map((tab) => (
-          <div key={tab.id}>
-            <Tab
-              label={tab.label}
-              onClick={() => setActiveTab(tab.id)}
-              isActive={tab.id === activeTab}
-            />
-          </div>
-        ))}
-        {tabs.map((tab) => (
-          <div key={tab.id}>
+          <div key={tab.id} style={{ minHeight: '1000px' }}>
             {tab.id === activeTab && activeTabData && (
-              <div style={{ width: '100%', minWidth: '500px', height: '500px' }}>
+              <div style={{ width: '100%', minHeight: '100px' }}>
                 <Webview src={activeTabData.url} id={activeTabData.id} />
               </div>
             )}
