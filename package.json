@@ -242,8 +242,9 @@
       "./assets/**"
     ],
     "publish": {
-      "provider": "generic",
-      "url": "http://localhost:8080/updates/production"
+      "provider": "github",
+      "owner": "AleannLab",
+      "repo": "maxaiapp-releases"
     }
   },
   "collective": {
