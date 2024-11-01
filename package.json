@@ -243,7 +243,7 @@
     ],
     "publish": {
       "provider": "generic",
-      "url": "http://localhost:8080/updates/production"
+      "url": "https://dev-api.trymax.ai/updates/production"
     }
   },
   "collective": {
