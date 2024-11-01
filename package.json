@@ -52,7 +52,7 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
     "release": "electron-builder -p always",
-    "release:prod": "rm -rf update-server/updates/production/* && cp -r release/build/. update-server/updates/production"
+    "release:prod": "cp -r release/build/. update-server/updates/production"
   },
   "browserslist": [
     "extends browserslist-config-erb"
@@ -183,8 +183,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "MaxAi",
+    "appId": "org.erb.MaxAi",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
