@@ -4,15 +4,18 @@ import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
 const remoteMain = require('@electron/remote/main');
+
 remoteMain.initialize();
 
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.allowPrerelease = true;  // Enable this if testing with pre-releases
+    autoUpdater.allowPrerelease = true; // Enable this if testing with pre-releases
     autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.setFeedURL('http://localhost:8080/updates/production');
     autoUpdater.on('error', (error) => {
       log.error('Error fetching updates:', error);
     });
@@ -22,30 +25,34 @@ class AppUpdater {
 let mainWindow = null;
 
 ipcMain.handle('create-session', async (event, cookies) => {
-    const newSession = session.fromPartition(`persist:my-partition-${Date.now()}`);
+  const newSession = session.fromPartition(
+    `persist:my-partition-${Date.now()}`,
+  );
 
-    // Set cookies for the new session
-    for (const cookie of cookies) {
-        await newSession.cookies.set(cookie).catch(err => {
-            console.error('Error setting cookie:', err);
-        });
-    }
+  // Set cookies for the new session
+  for (const cookie of cookies) {
+    await newSession.cookies.set(cookie).catch((err) => {
+      console.error('Error setting cookie:', err);
+    });
+  }
 
-    return newSession; // Return the new session
+  return newSession; // Return the new session
 });
 
 ipcMain.handle('set-cookies', async (event, cookies) => {
   try {
     // Set cookies in both the default and custom sessions
-    const defaultSession = session.defaultSession;
-    const customSession = session.fromPartition('persist:tab-1', { cache: true });
+    const { defaultSession } = session;
+    const customSession = session.fromPartition('persist:tab-1', {
+      cache: true,
+    });
 
     await Promise.all(
       cookies.map(async (cookie) => {
         await defaultSession.cookies.set(cookie);
         await customSession.cookies.set(cookie);
         console.log(`Cookie set: ${cookie.name}`);
-      })
+      }),
     );
 
     return 'Cookies set successfully';
@@ -55,7 +62,8 @@ ipcMain.handle('set-cookies', async (event, cookies) => {
   }
 });
 
-const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDebug =
+  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
   require('electron-debug')();
@@ -65,14 +73,39 @@ const createWindow = async () => {
   const customSession = session.fromPartition('persist:tab-1', { cache: true });
 
   const cookies = [
-    { url: 'https://onlyfans.com', name: 'sess', value: '2fbcilfq7a7e0ms68h3jd95n7b', httpOnly: true, secure: true },
-    { url: 'https://onlyfans.com', name: '_cfuvid', value: 'R6Cy8f.ASQAuacdwq9sVyV08W4ix_Tw0dco0OgSUBqs-1730013197638-0.0.1.1-604800000', httpOnly: true, secure: true },
-    { url: 'https://onlyfans.com', name: 'lang', value: 'en', httpOnly: true, secure: true },
-    { url: 'https://onlyfans.com', name: 'auth_id', value: '394757173', httpOnly: true, secure: true },
+    {
+      url: 'https://onlyfans.com',
+      name: 'sess',
+      value: '2fbcilfq7a7e0ms68h3jd95n7b',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: '_cfuvid',
+      value:
+        'R6Cy8f.ASQAuacdwq9sVyV08W4ix_Tw0dco0OgSUBqs-1730013197638-0.0.1.1-604800000',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: 'lang',
+      value: 'en',
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: 'auth_id',
+      value: '394757173',
+      httpOnly: true,
+      secure: true,
+    },
   ];
 
-  cookies.forEach(cookie => {
-    customSession.cookies.set(cookie).catch(error => {
+  cookies.forEach((cookie) => {
+    customSession.cookies.set(cookie).catch((error) => {
       console.error('Error setting cookie:', error);
     });
   });
@@ -92,10 +125,7 @@ const createWindow = async () => {
     },
   });
 
-
-
   mainWindow.loadURL(resolveHtmlPath('index.html'));
-
 
   // mainWindow.webContents.on('did-finish-load', async () => {
   //   const cookies = [
@@ -126,7 +156,6 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
@@ -136,7 +165,7 @@ ipcMain.on('ipc-example', async (event, ...args) => {
   console.log(`Received message on channel 'ipc-example':`, ...args);
 
   const session = require('electron').session.fromPartition('persist:tab-1');
-  console.log("session", session)
+  console.log('session', session);
   const cookies = [
     {
       url: 'https://onlyfans.com',
@@ -148,7 +177,8 @@ ipcMain.on('ipc-example', async (event, ...args) => {
     {
       url: 'https://onlyfans.com',
       name: '_cfuvid',
-      value: '6j0Vm.IsWq9VRx7fq8wVVKsSCWpjJrIsvWbUm3RV93M-1730407033603-0.0.1.1-604800000',
+      value:
+        '6j0Vm.IsWq9VRx7fq8wVVKsSCWpjJrIsvWbUm3RV93M-1730407033603-0.0.1.1-604800000',
       httpOnly: true,
       secure: true,
     },
@@ -169,8 +199,8 @@ ipcMain.on('ipc-example', async (event, ...args) => {
   ];
 
   try {
-    await Promise.all(cookies.map(cookie => session.cookies.set(cookie)));
-    cookies.forEach(cookie => console.log(`Cookie set: ${cookie.name}`));
+    await Promise.all(cookies.map((cookie) => session.cookies.set(cookie)));
+    cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}`));
   } catch (error) {
     console.error('Error setting cookies:', error);
   }
