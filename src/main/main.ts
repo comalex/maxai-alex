@@ -6,20 +6,20 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
 const remoteMain = require('@electron/remote/main');
-const Sentry = require('@sentry/node');
-const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+// const Sentry = require('@sentry/node');
+// const { nodeProfilingIntegration } = require('@sentry/profiling-node');
 
-Sentry.init({
-  dsn: 'https://56a4b37f6792ac0d7741ab34af123ed9@o4507266847539200.ingest.us.sentry.io/4508223070797824',
-  integrations: [
-    nodeProfilingIntegration(),
-  ],
-  // Tracing
-  tracesSampleRate: 1.0, // Capture 100% of the transactions
+// Sentry.init({
+//   dsn: 'https://56a4b37f6792ac0d7741ab34af123ed9@o4507266847539200.ingest.us.sentry.io/4508223070797824',
+//   integrations: [
+//     nodeProfilingIntegration(),
+//   ],
+//   // Tracing
+//   tracesSampleRate: 1.0, // Capture 100% of the transactions
 
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-});
+//   // Set sampling rate for profiling - this is relative to tracesSampleRate
+//   profilesSampleRate: 1.0,
+// });
 
 remoteMain.initialize();
 
@@ -32,19 +32,19 @@ class AppUpdater {
     autoUpdater.setFeedURL('https://dev-api.trymax.ai/updates/production');
     autoUpdater.on('error', (error) => {
       log.error('Error fetching updates:', error);
-      Sentry.captureException(error); // Log error to Sentry
+      // Sentry.captureException(error); // Log error to Sentry
     });
     autoUpdater.on('update-available', () => {
       log.info('Update available.');
-      Sentry.captureMessage('Update available'); // Log update available to Sentry
+      // Sentry.captureMessage('Update available'); // Log update available to Sentry
     });
     autoUpdater.on('update-not-available', () => {
       log.info('No updates available.');
-      Sentry.captureMessage('No updates available'); // Log no updates available to Sentry
+      // Sentry.captureMessage('No updates available'); // Log no updates available to Sentry
     });
     autoUpdater.on('update-downloaded', () => {
       log.info('Update downloaded.');
-      Sentry.captureMessage('Update downloaded'); // Log update downloaded to Sentry
+      // Sentry.captureMessage('Update downloaded'); // Log update downloaded to Sentry
     });
   }
 }
