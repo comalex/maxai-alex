@@ -1,5 +1,6 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "maxaiapp",
+  "version": "0.0.1",
   "description": "A foundation for scalable desktop apps",
   "keywords": [
     "electron",
@@ -49,7 +50,8 @@
     "start:main": "concurrently -k \"cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.dev.ts\" \"electronmon .\"",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-    "test": "jest"
+    "test": "jest",
+    "release": "electron-builder -p always"
   },
   "browserslist": [
     "extends browserslist-config-erb"
@@ -90,7 +92,7 @@
     "crypto-browserify": "^3.12.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
-    "electron-updater": "^6.1.4",
+    "electron-updater": "^6.3.9",
     "emoji-picker-react": "^4.12.0",
     "framer-motion": "^11.1.7",
     "idb": "^8.0.0",
@@ -239,8 +241,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "AleannLab",
+      "repo": "maxaiapp-releases"
     }
   },
   "collective": {
