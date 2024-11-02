@@ -52,7 +52,8 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
     "release": "electron-builder -p always",
-    "release:prod": "cp -r release/build/. update-server/updates/production"
+    "release:prod": "yarn package && sh copy.sh",
+    "release:local": "yarn package && cp -r release/build/. /Users/oleksiistupak/projects/spencer-chat/webSocket-App/maxai-be/webapp/updates/production"
   },
   "browserslist": [
     "extends browserslist-config-erb"
@@ -243,7 +244,7 @@
     ],
     "publish": {
       "provider": "generic",
-      "url": "https://dev-api.trymax.ai/updates/production"
+      "url": "https://api.trymax.ai/updates/production"
     }
   },
   "collective": {

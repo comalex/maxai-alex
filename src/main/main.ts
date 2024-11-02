@@ -29,7 +29,8 @@ class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.allowPrerelease = true; // Enable this if testing with pre-releases
     autoUpdater.checkForUpdatesAndNotify();
-    autoUpdater.setFeedURL('https://dev-api.trymax.ai/updates/production');
+    autoUpdater.setFeedURL('https://api.trymax.ai/updates/production');
+    // autoUpdater.setFeedURL('http://localhost:8000/updates/production');
     autoUpdater.on('error', (error) => {
       log.error('Error fetching updates:', error);
       // Sentry.captureException(error); // Log error to Sentry
