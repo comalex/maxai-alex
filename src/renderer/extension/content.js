@@ -18,7 +18,7 @@ _onMessage.addListener((message, sender, sendResponse) => {
   }
   switch (type) {
     case EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES:
-      parseMessagesFromSelectedThread(currentWebviewId).then(response => sendResponse(response));
+      parseMessagesFromSelectedThread(tab).then(response => sendResponse(response));
       break;
     case EXTENSION_MESSAGE_TYPES.READ_CURRENT_VAULT:
       sendResponse(vaultParser());
