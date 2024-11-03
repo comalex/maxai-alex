@@ -53,44 +53,6 @@ class AppUpdater {
 
 let mainWindow = null;
 
-ipcMain.handle('create-session', async (event, cookies) => {
-  const newSession = session.fromPartition(
-    `persist:my-partition-${Date.now()}`,
-  );
-
-  // Set cookies for the new session
-  for (const cookie of cookies) {
-    await newSession.cookies.set(cookie).catch((err) => {
-      console.error('Error setting cookie:', err);
-    });
-  }
-
-  return newSession; // Return the new session
-});
-
-ipcMain.handle('set-cookies', async (event, cookies) => {
-  try {
-    // Set cookies in both the default and custom sessions
-    const { defaultSession } = session;
-    const customSession = session.fromPartition('persist:tab-1', {
-      cache: true,
-    });
-
-    await Promise.all(
-      cookies.map(async (cookie) => {
-        await defaultSession.cookies.set(cookie);
-        await customSession.cookies.set(cookie);
-        console.log(`Cookie set: ${cookie.name}`);
-      }),
-    );
-
-    return 'Cookies set successfully';
-  } catch (error) {
-    console.error('Error setting cookies:', error);
-    throw error; // This will return an error to the renderer process
-  }
-});
-
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
@@ -111,7 +73,6 @@ const createWindow = async () => {
       // enableRemoteModule: true,
       webviewTag: true,
       sandbox: false,
-      // partition: 'persist:tab-1',
     },
   });
 

@@ -69,11 +69,6 @@ export const checkCurrentUrl = async (regex: RegExp) => {
 };
 
 export const retrieveMessageHistory = async (): Promise<Message> => {
-  // const content = await sendMessage({
-  //   type: EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES,
-  //   tab: "tab-1",
-  // });
-  // return content;
   try {
     const { success, data: messages } = await sendToBackground({
       name: "retrieve-thread-messages"

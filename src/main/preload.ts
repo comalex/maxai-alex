@@ -34,13 +34,6 @@ const electronHandler = {
   },
   getWebviewHTML: async (event, webviewId) => {
     return ipcRenderer.invoke('get-webview-html', webviewId);
-    // debugger
-    // const webview = event.sender.webContents.getAllWebContents().find(w => w.id === webviewId);
-    // if (webview) {
-    //     const html = await webview.executeJavaScript('document.documentElement.outerHTML');
-    //     return html;
-    // }
-    // return 'Webview not found';
   }
 };
 

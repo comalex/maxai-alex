@@ -39,7 +39,7 @@ export default function App() {
         <TabsContainer tabs={tabs} setTabs={setTabs} />
       </div>
       <div className="ext" style={{ flex: '0 0 30%' }}>
-        {/* <SidePanel /> */}
+        <SidePanel />
       </div>
     </div>
   );
