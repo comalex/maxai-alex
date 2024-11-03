@@ -1,18 +1,61 @@
 import React, {
   useState,
-  type AudioHTMLAttributes,
-  type DetailedHTMLProps,
-  type FC
-} from "react";
-import { api } from "../../sidepanel/api";
-import { useGlobal } from "../../sidepanel/hooks/useGlobal";
+  type FC,
+  useEffect,
+} from 'react';
+import { api } from '../../sidepanel/api';
+import { useGlobal } from '../../sidepanel/hooks/useGlobal';
 
-import VoiceDescriptionModal from "./VoiceDescriptionModal";
+import VoiceDescriptionModal from './VoiceDescriptionModal';
 
 interface AudioDraggableProps {
   url: string;
   text: string;
 }
+
+const DraggableFile = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const filePath = "file:///var/folders/gj/nvz3tqq50cs984w9pfgpkh2w0000gn/T/20240621101839_old_QQEFZV5FGFAS0I9CCTP55NVK7RSLR65E.mp3"
+
+  const handleDragStart = (event) => {
+    console.log('Drag start event triggered.');
+    event.preventDefault();
+    window.electron.ipcRenderer.startDrag('drag-and-drop.md');
+    // event.dataTransfer.setData('text/uri-list', `file://${filePath}`);
+    // console.log(`File path set in dataTransfer: ${filePath}`);
+  };
+
+  const handleDragEnd = () => {
+    console.log('Drag end event triggered.');
+    setIsDragging(false);
+  };
+
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      style={{
+        border: isDragging ? '2px solid green' : '2px dashed gray',
+        padding: '10px',
+        cursor: 'grab',
+        marginTop: '20px',
+        width: '300px',
+        textAlign: 'center',
+      }}
+    >
+      {filePath ? (
+        <>
+          <p>Drag this file:</p>
+          <strong draggable>{filePath}</strong>
+        </>
+      ) : (
+        <p>No file selected</p>
+      )}
+    </div>
+  );
+};
+
 
 const AudioDraggable: FC<AudioDraggableProps> = ({ url, text }) => {
   const {

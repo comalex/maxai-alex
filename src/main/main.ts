@@ -1,12 +1,14 @@
 import path from 'path';
-import { app, BrowserWindow, session, ipcMain } from 'electron';
+import { app, BrowserWindow, session, ipcMain, dialog } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
+import fs from 'fs';
+import https from 'https';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { AuthData } from './types';
 
-const remoteMain = require('@electron/remote/main');
+// const remoteMain = require('@electron/remote/main');
 // const Sentry = require('@sentry/node');
 // const { nodeProfilingIntegration } = require('@sentry/profiling-node');
 
@@ -22,7 +24,7 @@ const remoteMain = require('@electron/remote/main');
 //   profilesSampleRate: 1.0,
 // });
 
-remoteMain.initialize();
+// remoteMain.initialize();
 
 class AppUpdater {
   constructor() {
@@ -72,6 +74,7 @@ const createWindow = async () => {
       contextIsolation: true,
       // enableRemoteModule: true,
       webviewTag: true,
+      webSecurity: false,
       sandbox: false,
     },
   });
@@ -199,3 +202,50 @@ ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) =
   event.reply('ipc-example-response', result);
   return result;
 });
+
+
+
+
+// Function to download a file and save it temporarily
+function downloadFile(url, callback) {
+  const tempFilePath = path.join(app.getPath('temp'), path.basename(url));
+
+  const file = fs.createWriteStream(tempFilePath);
+  https.get(url, (response) => {
+    response.pipe(file);
+    file.on('finish', () => {
+      file.close();
+      callback(tempFilePath);
+    });
+  }).on('error', (err) => {
+    fs.unlink(tempFilePath);
+    console.error('Error downloading file:', err);
+    dialog.showErrorBox('Download Error', 'Could not download the file.');
+  });
+}
+
+// Handle download request from renderer process
+ipcMain.handle('download-file', async (event, url) => {
+  console.log(`Download request received for URL: ${url}`);
+  return new Promise((resolve) => {
+    downloadFile(url, (filePath) => {
+      console.log(`File downloaded to: ${filePath}`);
+      resolve(filePath);
+    });
+  });
+});
+
+const iconName = path.join(__dirname, 'iconForDragAndDrop.png');
+const icon = fs.createWriteStream(iconName)
+
+https.get('https://img.icons8.com/ios/452/drag-and-drop.png', (response) => {
+  response.pipe(icon)
+})
+
+ipcMain.on('ondragstart', (event, filePath) => {
+  event.sender.startDrag({
+    // file: path.join(__dirname, filePath),
+    file: "/var/folders/gj/nvz3tqq50cs984w9pfgpkh2w0000gn/T/20240621101839_old_QQEFZV5FGFAS0I9CCTP55NVK7RSLR65E.mp3",
+    icon: iconName
+  })
+})

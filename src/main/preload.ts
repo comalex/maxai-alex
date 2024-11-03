@@ -9,6 +9,15 @@ console.log("Preload script loaded");
 const electronHandler = {
   session,
   ipcRenderer: {
+    startDrag: (fileName) => {
+      ipcRenderer.send('ondragstart', "/var/folders/gj/nvz3tqq50cs984w9pfgpkh2w0000gn/T/20240621101839_old_QQEFZV5FGFAS0I9CCTP55NVK7RSLR65E.mp3")
+    },
+    invokeDownloadFile: async (url: string) => {
+      console.log(`Invoking download for URL: ${url}`);
+      const result = await ipcRenderer.invoke('download-file', url);
+      console.log(`Download result for URL ${url}: ${result}`);
+      return result;
+    },
     getEnv: () => {
       console.log("getEnv");
       console.log(process.env);
