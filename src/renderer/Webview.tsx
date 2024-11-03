@@ -18,8 +18,8 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const response = await axios.get('http://127.0.0.1:8000/api/v2/app');
-        const response = await axios.get('https://dev-api.trymax.ai/api/v2/app');
+        const response = await axios.get(`http://127.0.0.1:8000/api/v2/app/${id}`);
+        // const response = await axios.get('https://dev-api.trymax.ai/api/v2/app');
         setAuthData(response.data);
         console.log(response.data);
         setDataFetched(true);

@@ -16,8 +16,6 @@ interface TabsContainerProps {
 }
 
 const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
-  const activeTab = tabs.find(tab => tab.active);
-
   return (
     <>
       <Tabs
@@ -33,11 +31,16 @@ const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
         pinnedRight={<button onClick={() => addTab(tabs, setTabs)}>+</button>}
       />
 
-      {activeTab && (
-        <div style={{ width: '100%', minHeight: '100px' }}>
-          <Webview src={activeTab.url} id={activeTab.id} />
-        </div>
-      )}
+      <div style={{ width: '100%', minHeight: '100px' }}>
+        {tabs.map(tab => (
+          <div
+            key={tab.id}
+            style={{ display: tab.active ? 'block' : 'none', width: '100%', height: '100%' }}
+          >
+            <Webview src={tab.url} id={tab.id} />
+          </div>
+        ))}
+      </div>
     </>
   );
 };
