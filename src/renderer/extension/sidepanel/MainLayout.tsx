@@ -107,7 +107,8 @@ function MainLayout({ logout }) {
     setShiftId,
     accountName,
     globalNotificationMode,
-    globalNotificationMessage
+    globalNotificationMessage,
+    currentWebviewId,
   } = useGlobal();
 
   const {
@@ -116,7 +117,7 @@ function MainLayout({ logout }) {
     error: isPermittedError
   } = useIsPermitted();
 
-  const [_, setModelsStore] = useStorage<Model[]>(STORAGE_KEYS.MODELS);
+  const [_, setModelsStore] = useStorage<Model[]>(currentWebviewId, STORAGE_KEYS.MODELS);
   const [isClockedIn, setIsClockedIn] = useState(false);
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();

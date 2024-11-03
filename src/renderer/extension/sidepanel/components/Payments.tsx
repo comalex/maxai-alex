@@ -124,7 +124,8 @@ const PaymentSummary = ({
     accountId,
     userUUID,
     agency,
-    account
+    account,
+    currentWebviewId,
   } = useGlobal();
   const { getMessagesContent } = useMessages();
   const [paymentsData, setPaymentsData] = useState(null);
@@ -348,7 +349,7 @@ const PaymentSummary = ({
     }
   }, [payments, userId]);
 
-  const [messageThreshold] = useStorage<number | undefined>(
+  const [messageThreshold] = useStorage<number | undefined>(currentWebviewId,
     STORAGE_KEYS.MESSAGE_THRESHOLD
   );
 

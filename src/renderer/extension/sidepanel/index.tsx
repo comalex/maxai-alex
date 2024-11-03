@@ -62,15 +62,15 @@ const Loader: React.FC = () => {
 function IndexSidePanel({ tab }) {
   const [activePage, setActivePage] = useState<PageName>(null);
   const [currentWebviewId] = useState(tab.id);
-  const [isDebugMode, setDebugMode] = useStorage<boolean>(
+  const [isDebugMode, setDebugMode] = useStorage<boolean>(tab.id,
     STORAGE_KEYS.DEBUG_MODE,
     false
   );
-  const [storedModel, setStoredModel] = useStorage<Model>(
+  const [storedModel, setStoredModel] = useStorage<Model>(tab.id,
     STORAGE_KEYS.SELECTED_MODEL
   );
 
-  const [chatter, setChatter] = useStorage<string>(STORAGE_KEYS.CHATTER, null);
+  const [chatter, setChatter] = useStorage<string>(tab.id, STORAGE_KEYS.CHATTER, null);
 
   const [accountIdIsLoading, setAccountIdIsLoading] = useState<boolean>(false);
   const [accountId, setAccountId] = useState<string>(null);
@@ -99,27 +99,27 @@ function IndexSidePanel({ tab }) {
 
   const [content, setContent] = useState<Message | null>(null);
 
-  const [jwtToken, setJwtToken] = useStorage<string>(STORAGE_KEYS.JWT_TOKEN);
+  const [jwtToken, setJwtToken] = useStorage<string>(tab.id, STORAGE_KEYS.JWT_TOKEN);
 
-  const [customVaultId, setCustomVaultId] = useStorage<string | number>(
+  const [customVaultId, setCustomVaultId] = useStorage<string | number>(tab.id,
     STORAGE_KEYS.CUSTOM_VAULT_ID
   );
 
-  const [customAccountName, setCustomAccountName] = useStorage<string>(
+  const [customAccountName, setCustomAccountName] = useStorage<string>(tab.id,
     STORAGE_KEYS.CUSTOM_ACCOUNT_NAME
   );
 
-  const [chatJwtToken, setChatJwtToken] = useStorage<string>(
+  const [chatJwtToken, setChatJwtToken] = useStorage<string>(tab.id,
     STORAGE_KEYS.CHAT_JWT_TOKEN
   );
 
-  const [userUUID, setUserUUID] = useStorage<string>(STORAGE_KEYS.USER_UUID);
+  const [userUUID, setUserUUID] = useStorage<string>(tab.id, STORAGE_KEYS.USER_UUID);
 
-  const [voiceGenAbility, setVoiceGenAbility] = useStorage<boolean>(
+  const [voiceGenAbility, setVoiceGenAbility] = useStorage<boolean>(tab.id,
     STORAGE_KEYS.VOICE_GENERATION_ABILITY
   );
 
-  const [lastFanSpend, setLastFanSpend] = useStorage<number>(
+  const [lastFanSpend, setLastFanSpend] = useStorage<number>(tab.id,
     STORAGE_KEYS.LAST_FAN_SPEND
   );
 

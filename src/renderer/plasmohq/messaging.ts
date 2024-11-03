@@ -78,13 +78,15 @@ export type PlasmoMessaging = {
 }
 
 
-export const useStorage = (key: string, initialValue: any) => {
+export const useStorage = (currentWebviewId: string, key: string, initialValue: any) => {
+  const storageKey = `${key}_${currentWebviewId}`;
+
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      const item = localStorage.getItem(key);
+      const item = localStorage.getItem(storageKey);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error("Error reading localStorage key:", key, error);
+      console.error("Error reading localStorage key:", storageKey, error);
       return initialValue;
     }
   });
@@ -93,32 +95,32 @@ export const useStorage = (key: string, initialValue: any) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      localStorage.setItem(key, JSON.stringify(valueToStore));
+      localStorage.setItem(storageKey, JSON.stringify(valueToStore));
     } catch (error) {
-      console.error("Error setting localStorage key:", key, error);
+      console.error("Error setting localStorage key:", storageKey, error);
     }
-  }, [key, storedValue]);
+  }, [storageKey, storedValue]);
 
   const removeItem = useCallback(() => {
     try {
-      localStorage.removeItem(key);
+      localStorage.removeItem(storageKey);
       setStoredValue(initialValue);
     } catch (error) {
-      console.error("Error removing localStorage key:", key, error);
+      console.error("Error removing localStorage key:", storageKey, error);
     }
-  }, [key, initialValue]);
+  }, [storageKey, initialValue]);
 
   useEffect(() => {
     setStoredValue(() => {
       try {
-        const item = localStorage.getItem(key);
+        const item = localStorage.getItem(storageKey);
         return item ? JSON.parse(item) : initialValue;
       } catch (error) {
-        console.error("Error reading localStorage key:", key, error);
+        console.error("Error reading localStorage key:", storageKey, error);
         return initialValue;
       }
     });
-  }, [key, initialValue]);
+  }, [storageKey, initialValue]);
 
   return [storedValue, setValue, removeItem];
 };
