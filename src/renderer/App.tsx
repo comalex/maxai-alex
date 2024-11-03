@@ -1,20 +1,33 @@
-// App.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import TabsContainer from './components/TabsContainer';
 import SidePanel from './extension/sidepanel/index';
 import '@sinm/react-chrome-tabs/css/chrome-tabs.css';
 import '@sinm/react-chrome-tabs/css/chrome-tabs-dark-theme.css';
 import { TabProperties } from '@sinm/react-chrome-tabs';
-
-let id = 1;
+import axios from 'axios';
 
 export default function App() {
-  const [tabs, setTabs] = useState<TabProperties[]>([
-    // { id: 'tab-1', url: 'https://onlyfans.com/my/chats/chat/39895946/', label: 'Chat 1', active: true, },
-    { id: '987e6543-e21b-12d3-a456-426614174001', url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', label: 'Legrand', active: true, },
-    { id: '123e4567-e89b-12d3-a456-426614174000', url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', label: 'Tayler', active: false },
-  ]);
+  const [tabs, setTabs] = useState<TabProperties[]>([]);
+
+  useEffect(() => {
+    const fetchTabs = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/v2/accounts');
+        const fetchedTabs = response.data.map((account: { uuid: string; label: string }) => ({
+          id: account.uuid,
+          url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', // Assuming a default URL for each tab
+          label: account.label,
+          active: false, // Assuming default inactive state
+        }));
+        setTabs(fetchedTabs);
+      } catch (error) {
+        console.error('Error fetching tabs:', error);
+      }
+    };
+
+    fetchTabs();
+  }, []);
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
