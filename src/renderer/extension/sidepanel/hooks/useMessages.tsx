@@ -37,7 +37,8 @@ export const useMessages = (): {
     content,
     setContent,
     userUUID,
-    setLastFanSpend
+    setLastFanSpend,
+    currentWebviewId,
   } = useGlobal();
 
   const [errorGettingMessagesContent, setErrorGettingMessagesContent] =
@@ -98,8 +99,9 @@ export const useMessages = (): {
 
   const getMessagesContent = async (): Promise<Message | null> => {
     try {
+      console.log("currentWebviewId", currentWebviewId)
       const isOnlyFanMessageThreadSelected =
-        await checkIsOnlyFanMessageThreadSelected();
+        await checkIsOnlyFanMessageThreadSelected(currentWebviewId);
       let description = "";
 
       if (!isOnlyFanMessageThreadSelected) {
@@ -108,7 +110,8 @@ export const useMessages = (): {
       if (description) {
         throw new Error(description);
       }
-      const retrievedContent = (await retrieveMessageHistory()) as Message;
+      const retrievedContent = (await retrieveMessageHistory(currentWebviewId)) as Message;
+      console.log("retrievedContent", retrievedContent)
       setContent(retrievedContent);
 
       const tipRegex = /<[^>]+_tip>/;

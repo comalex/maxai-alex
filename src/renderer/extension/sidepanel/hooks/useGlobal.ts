@@ -62,7 +62,8 @@ export function useGlobal(): UseGlobal {
     globalNotificationMode,
     globalNotificationMessage,
     maintenanceFrom,
-    maintenanceTo
+    maintenanceTo,
+    currentWebviewId,
   } = useContext(CurrentPageContext);
 
   const _setActivePage = (page: PageName) => {
@@ -126,6 +127,7 @@ export function useGlobal(): UseGlobal {
     globalNotificationMode,
     globalNotificationMessage,
     maintenanceFrom,
-    maintenanceTo
+    maintenanceTo,
+    currentWebviewId,
   };
 }

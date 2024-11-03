@@ -71,11 +71,13 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     <div>
       <webview
         id={id}
-        src={dataFetched && ipcResponseReceived ? src : 'http://www.blankwebsite.com/'}
+        // src={dataFetched && ipcResponseReceived ? src : 'http://www.blankwebsite.com/'}
+        src={src}
         className="webview-content"
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
         style={{ height: '100vh' }}
+        preload="file:///Users/oleksiistupak/projects/spencer-chat/webSocket-App/maxaiapp/src/renderer/webview-preload.js"
       />
     </div>
   );

@@ -1,4 +1,7 @@
+import { TbChevronCompactLeft } from "react-icons/tb";
+
 export const getWebviewHTML = async (webviewId: string): Promise<string | null> => {
+  console.log("webviewId", webviewId)
   const webview = document.getElementById(webviewId) as any;
   if (webview && typeof webview.executeJavaScript === 'function') {
     try {
@@ -15,10 +18,11 @@ export const getWebviewHTML = async (webviewId: string): Promise<string | null> 
 };
 
 export const getWebviewCurrentURL = async (webviewId: string): Promise<string | null> => {
+  console.log("webviewId", webviewId)
   const webview = document.getElementById(webviewId) as any;
   if (webview && typeof webview.executeJavaScript === 'function') {
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for 3 seconds
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 3 seconds
       const url = await webview.executeJavaScript('window.location.href');
       console.log('Current URL:', url);
       return url;

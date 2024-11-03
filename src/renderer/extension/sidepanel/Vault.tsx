@@ -30,7 +30,7 @@ const exampleTags = [
 ];
 
 function VaultComponent({ vault: originalVault }: { vault?: Vault }) {
-  const { setActivePage, selectedModel, logger, jwtToken, accountId } =
+  const { setActivePage, selectedModel, logger, jwtToken, accountId, currentWebviewId } =
     useGlobal();
   const [currentVault, setCurrentVault] = useState<Vault | null>(originalVault);
   const [loading, setLoading] = useState(false);
@@ -48,7 +48,7 @@ function VaultComponent({ vault: originalVault }: { vault?: Vault }) {
   const syncVault = async (
     { force }: { force: boolean } = { force: false }
   ) => {
-    if (!(await checkIfVaultDetailedPage())) {
+    if (!(await checkIfVaultDetailedPage(currentWebviewId))) {
       toast({
         title: "Please select a Vault Category on the Vault Page",
         status: "error",

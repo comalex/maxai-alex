@@ -14,23 +14,24 @@ export const REGEX_PATTERNS = {
     /^https:\/\/onlyfans\.com\/my\/statistics\/fans\/subscriptions/
 };
 
-export const checkIsOnlyFanMessageThreadSelected = async () => {
-  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_MESSAGE_THREAD);
+export const checkIsOnlyFanMessageThreadSelected = async (currentWebviewId: string) => {
+  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_MESSAGE_THREAD, currentWebviewId);
 };
 
-export const checkIfSubsDetailedPage = async () => {
-  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_SUBS_DETAILED_PAGE);
+export const checkIfSubsDetailedPage = async (checkCurrentUrl: string) => {
+  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_SUBS_DETAILED_PAGE, currentWebviewId);
 };
 
-export const checkIfVaultDetailedPage = async () => {
-  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_VAULT_DETAILED_PAGE);
+export const checkIfVaultDetailedPage = async (currentWebviewId: string) => {
+  return await checkCurrentUrl(REGEX_PATTERNS.ONLYFANS_VAULT_DETAILED_PAGE, currentWebviewId);
 };
 
 export const isValidPage = (regex: RegExp, url: string) => {
   return regex.test(url);
 };
 
-export const getActiveTabUrl = async (): Promise<string | null> => {
+export const getActiveTabUrl = async (tabId): Promise<string | null> => {
+  console.log("tabId", tabId)
   try {
     // const tabs = await chrome.tabs.query({
     //   active: true,
@@ -40,41 +41,36 @@ export const getActiveTabUrl = async (): Promise<string | null> => {
     // const url = currentTab.url || null;
     // console.log(url);
     // return url;
-    return getWebviewCurrentURL('tab-1');
+    return getWebviewCurrentURL(tabId);
   } catch (error) {
     console.error("Error while getting active tab url:", error);
     return null;
   }
 };
 
-export const getCurrentUrl = async () => {
+export const getCurrentUrl = async (currentWebviewId: string) => {
   try {
-    // const data = await sendToBackground({
-    //   name: "get-active-tab-url"
-    // });
-    // console.log("getCurrentUrl", data);
-    // if (!data.success || !data.activeTabUrl) {
-    //   return null;
-    // }
-    // return data.activeTabUrl;
-    return getActiveTabUrl();
+    return getActiveTabUrl(currentWebviewId);
   } catch (error) {
     return null;
   }
 };
 
-export const checkCurrentUrl = async (regex: RegExp) => {
-  const url = await getCurrentUrl();
+export const checkCurrentUrl = async (regex: RegExp, currentWebviewId: string) => {
+  const url = await getCurrentUrl(currentWebviewId);
   return url ? isValidPage(regex, url) : false;
 };
 
-export const retrieveMessageHistory = async (): Promise<Message> => {
+export const retrieveMessageHistory = async (currentWebviewId: string): Promise<Message> => {
   try {
+    // debugger
+    console.log("retrieveMessageHistory currentWebviewId", currentWebviewId)
     const { success, data: messages } = await sendToBackground({
+      currentWebviewId,
       name: "retrieve-thread-messages"
     });
 
-    console.log("messages", messages)
+    console.log("retrieveMessageHistory messages", messages)
     if (success) {
       return messages;
     }

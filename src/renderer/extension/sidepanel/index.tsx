@@ -59,8 +59,9 @@ const Loader: React.FC = () => {
   );
 };
 
-function IndexSidePanel() {
+function IndexSidePanel({ tab }) {
   const [activePage, setActivePage] = useState<PageName>(null);
+  const [currentWebviewId] = useState(tab.id);
   const [isDebugMode, setDebugMode] = useStorage<boolean>(
     STORAGE_KEYS.DEBUG_MODE,
     false
@@ -181,6 +182,7 @@ function IndexSidePanel() {
   useEffect(() => {
     const setListener = async () => {
       const { success, data } = await sendToBackground({
+        currentWebviewId,
         name: "retrieve-data",
         body: {
           type: EXTENSION_MESSAGE_TYPES.ADD_URL_CHANGE_LISTENERS
@@ -203,8 +205,10 @@ function IndexSidePanel() {
     return data;
   };
 
-  const refreshOfPage = async () => {
+  const refreshOfPage = async (currentWebviewId) => {
+    console.log("currentWebviewId", currentWebviewId)
     const { success, data } = await sendToBackground({
+      currentWebviewId,
       name: "retrieve-data",
       body: {
         type: EXTENSION_MESSAGE_TYPES.REFRESH_OF_PAGE
@@ -215,7 +219,7 @@ function IndexSidePanel() {
 
   const updateActivePage = useCallback(async () => {
     try {
-      const activeTabUrl = await getActiveTabUrl();
+      const activeTabUrl = await getActiveTabUrl(currentWebviewId);
       // logger.debug("updateActivePage", activeTabUrl)
       setCurrentUrl(activeTabUrl);
     } catch (error) {
@@ -259,6 +263,7 @@ function IndexSidePanel() {
   useEffect(() => {
     const fetchData = async () => {
       const { success, data } = await sendToBackground({
+        currentWebviewId,
         name: "retrieve-data",
         body: {
           type: EXTENSION_MESSAGE_TYPES.ADD_LISTENERS
@@ -313,7 +318,7 @@ function IndexSidePanel() {
     const fetchData = async () => {
       setAccountIdIsLoading(true);
       try {
-        const data = await api.retrieveDataFromPage();
+        const data = await api.retrieveDataFromPage(currentWebviewId);
         console.log("retrieveDataFromPage data", data);
         if (!data.accountId) {
           toast({
@@ -335,13 +340,13 @@ function IndexSidePanel() {
       }
     };
 
-    // const intervalId = setInterval(() => {
-    //   if (!accountId) {
-    //     fetchData();
-    //   } else {
-    //     clearInterval(intervalId);
-    //   }
-    // }, 3000);
+    const intervalId = setInterval(() => {
+      if (!accountId) {
+        fetchData();
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 1000);
 
     return () => clearInterval(intervalId);
   }, [accountId]);
@@ -407,7 +412,7 @@ function IndexSidePanel() {
     setChatJwtToken(jwtChatToken);
     setChatter(email);
     setVoiceGenAbility(Boolean(voiceGenAbility));
-    refreshOfPage();
+    refreshOfPage(currentWebviewId);
   };
 
   const logout = () => {
@@ -503,7 +508,8 @@ function IndexSidePanel() {
             globalNotificationMode,
             globalNotificationMessage,
             maintenanceFrom,
-            maintenanceTo
+            maintenanceTo,
+            currentWebviewId,
           }}
         >
           {component}
@@ -513,10 +519,10 @@ function IndexSidePanel() {
   );
 }
 
-const IndexSidePanelWithErrorBoundary = () => (
+const IndexSidePanelWithErrorBoundary = ({ tab }) => (
   <ErrorBoundary>
     {/*<DragAndDrop />*/}
-    <IndexSidePanel />
+    <IndexSidePanel tab={tab} />
   </ErrorBoundary>
 );
 

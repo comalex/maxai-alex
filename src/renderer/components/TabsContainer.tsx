@@ -2,6 +2,7 @@
 import React from 'react';
 import { Tabs, TabProperties } from '@sinm/react-chrome-tabs';
 import Webview from '../Webview';
+import SidePanel from '../extension/sidepanel/index';
 import {
   addTab,
   closeTab,
@@ -37,7 +38,14 @@ const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
             key={tab.id}
             style={{ display: tab.active ? 'block' : 'none', width: '100%', height: '100%' }}
           >
-            <Webview src={tab.url} id={tab.id} />
+            <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+              <div style={{ flex: '0 0 70%' }}>
+                <Webview src={tab.url} id={tab.id} />
+              </div>
+              <div style={{ flex: '0 0 30%' }}>
+                <SidePanel tab={tab} />
+              </div>
+            </div>
           </div>
         ))}
       </div>

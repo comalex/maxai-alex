@@ -66,6 +66,7 @@ export type GlobalContext = {
   globalNotificationMessage: string | null;
   maintenanceFrom: string | null;
   maintenanceTo: string | null;
+  currentWebviewId: any;
 };
 
 export const CurrentPageContext = createContext<GlobalContext>({
@@ -126,5 +127,6 @@ export const CurrentPageContext = createContext<GlobalContext>({
   globalNotificationMode: "disabled",
   globalNotificationMessage: null,
   maintenanceFrom: null,
-  maintenanceTo: null
+  maintenanceTo: null,
+  currentWebviewId: null,
 });

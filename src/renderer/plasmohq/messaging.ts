@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { sendMessage } from "../extension/background/bus";
 import { EXTENSION_MESSAGE_TYPES } from "../extension/config/constants";
 
-const TAB_CONSTANT = "tab-1";
 
-export const sendToBackground = async ({ name, body }) => {
+export const sendToBackground = async ({ currentWebviewId, name, body }) => {
+  const TAB_CONSTANT = currentWebviewId;
+  if (!TAB_CONSTANT) {
+    debugger
+  }
   const payload = body;
   console.log("sendToBackground", name, payload)
   let content;

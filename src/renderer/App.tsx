@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import TabsContainer from './components/TabsContainer';
-import SidePanel from './extension/sidepanel/index';
 import '@sinm/react-chrome-tabs/css/chrome-tabs.css';
 import '@sinm/react-chrome-tabs/css/chrome-tabs-dark-theme.css';
 import { TabProperties } from '@sinm/react-chrome-tabs';
@@ -34,12 +33,9 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', width: '100%' }}>
+    <div>
       <div className="tabs" style={{ flex: '0 0 70%' }}>
         <TabsContainer tabs={tabs} setTabs={setTabs} />
-      </div>
-      <div className="ext" style={{ flex: '0 0 30%' }}>
-        <SidePanel />
       </div>
     </div>
   );

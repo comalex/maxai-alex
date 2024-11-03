@@ -355,18 +355,18 @@ export const parseSubsFun = () => {
   return subs;
 };
 
-export async function getDocument(): Promise<Document> {
+export async function getDocument(currentWebviewId: string): Promise<Document> {
   const parser = new DOMParser();
-  const htmlString = await getWebviewHTML("tab-1");
+  const htmlString = await getWebviewHTML(currentWebviewId);
   // console.log("htmlString", htmlString)
   return parser.parseFromString(htmlString || '', 'text/html');
 }
 
 
 
-export const parseMessagesFromSelectedThread = async (): Message => {
+export const parseMessagesFromSelectedThread = async (currentWebviewId: string): Message => {
   const messages: OnlyFansMessage[] = [];
-  const doc = await getDocument();
+  const doc = await getDocument(currentWebviewId);
   // console.log("doc", doc)
   let currentUsernameElement = doc.querySelector(
     "div.current span.g-user-name"

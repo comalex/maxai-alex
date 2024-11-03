@@ -58,15 +58,16 @@ export const _sendToBackground = async ({ name, payload }) => {
 };
 
 export const api = {
-  retrieveDataFromPage: async (): Promise<{
+  retrieveDataFromPage: async (currentWebviewId: string): Promise<{
     accountId?: string;
     accountName: string;
   } | null> => {
     try {
       const { success, data } = await sendToBackground({
+        currentWebviewId,
         name: "retrieve-data",
         body: {
-          type: EXTENSION_MESSAGE_TYPES.READ_HTML
+          type: EXTENSION_MESSAGE_TYPES.READ_HTML,
         }
       });
       console.log("RES: ", success, data);
@@ -81,15 +82,16 @@ export const api = {
       return null;
     }
   },
-  retrieveProcessingStatus: async (): Promise<{
+  retrieveProcessingStatus: async (currentWebviewId: string): Promise<{
     accountId?: string;
     accountName: string;
   } | null> => {
     try {
       const { success, data } = await sendToBackground({
+        currentWebviewId,
         name: "retrieve-data",
         body: {
-          type: EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE
+          type: EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE,
         }
       });
       if (success) {
