@@ -159,18 +159,19 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 
 app.whenReady().then(createWindow).catch(console.log);
 
-ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) => {
+ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) => {
   console.log(`Received message on channel 'ipc-example':`);
   console.log('Persist ID:', persistId);
-  console.log('Auth Data:', auth);
+  const { proxy, auth } = data;
+  console.log('Auth Data:', data);
   const session = require('electron').session.fromPartition(persistId);
   // console.log('session', session);
 
   let proxyStatus = 'No proxy information provided in auth data';
-  if (auth.proxy) {
-    const { type, ip, port } = auth.proxy;
+  if (false && proxy) {
+    const { type, ip, port } = proxy;
     const proxyRules = `http=${ip}:${port};https=${ip}:${port};socks5=${ip}:${port}`;
-    PROXIES[ip] = { type, ip, port, username: auth.proxy.username, password: auth.proxy.password }; // Add proxy to PROXIES
+    PROXIES[ip] = { type, ip, port, username: proxy.username, password: proxy.password }; // Add proxy to PROXIES
     try {
       await session.setProxy({ proxyRules });
       console.log('Proxy set successfully');
@@ -200,13 +201,6 @@ ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) =
     },
     {
       url: 'https://onlyfans.com',
-      name: 'lang',
-      value: 'en',
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
       name: 'auth_id',
       value: auth.auth_id,
       httpOnly: true,
@@ -215,7 +209,7 @@ ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) =
     {
       url: 'https://onlyfans.com',
       name: 'test',
-      value: 'alex',
+      value: persistId,
       httpOnly: true,
       secure: true,
     },
