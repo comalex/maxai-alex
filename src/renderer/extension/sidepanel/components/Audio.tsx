@@ -1,7 +1,6 @@
 import React, {
   useState,
   type FC,
-  useEffect,
 } from 'react';
 import { api } from '../../sidepanel/api';
 import { useGlobal } from '../../sidepanel/hooks/useGlobal';
@@ -56,7 +55,6 @@ const DraggableFile = () => {
   );
 };
 
-
 const AudioDraggable: FC<AudioDraggableProps> = ({ url, text }) => {
   const {
     userId: user_id,
@@ -69,8 +67,11 @@ const AudioDraggable: FC<AudioDraggableProps> = ({ url, text }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    e.dataTransfer.setData("text/plain", JSON.stringify([url]));
+  const handleDragStart = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const downloadedFilePath =
+      await window.electron.ipcRenderer.invokeDownloadFile(url);
+    window.electron.ipcRenderer.startDrag(downloadedFilePath);
   };
 
   const closeModal = () => {
