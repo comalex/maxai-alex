@@ -48,7 +48,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const handleIpcInjectResponse = (event: any, response: any) => {
       console.log("Received ipc-inject-response:", response, "Event:", event);
-      sendMessage({ type: event, tab: id, socketApi: true });
+      sendMessage({ type: event, currentWebviewId: id, socketApi: true });
     };
     return window.electron.ipcRenderer.on('ipc-inject-response', handleIpcInjectResponse)
   }, []);

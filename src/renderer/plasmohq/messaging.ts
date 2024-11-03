@@ -16,7 +16,7 @@ export const sendToBackground = async ({ currentWebviewId, name, body }) => {
       content = await sendMessage({
         ...payload,
         type: EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES,
-        tab: TAB_CONSTANT,
+        currentWebviewId: TAB_CONSTANT,
       });
 
       break;
@@ -27,7 +27,7 @@ export const sendToBackground = async ({ currentWebviewId, name, body }) => {
           content = await sendMessage({
             ...payload,
             type: EXTENSION_MESSAGE_TYPES.ADD_LISTENERS,
-            tab: TAB_CONSTANT,
+            currentWebviewId: TAB_CONSTANT,
           });
           break;
         case EXTENSION_MESSAGE_TYPES.READ_HTML:
@@ -35,7 +35,7 @@ export const sendToBackground = async ({ currentWebviewId, name, body }) => {
           content = await sendMessage({
             ...payload,
             type: EXTENSION_MESSAGE_TYPES.READ_HTML,
-            tab: TAB_CONSTANT,
+            currentWebviewId: TAB_CONSTANT,
           });
           console.log("content end READ_HTML", content);
           break;
@@ -43,21 +43,21 @@ export const sendToBackground = async ({ currentWebviewId, name, body }) => {
           content = await sendMessage({
             ...payload,
             type: EXTENSION_MESSAGE_TYPES.ADD_URL_CHANGE_LISTENERS,
-            tab: TAB_CONSTANT,
+            currentWebviewId: TAB_CONSTANT,
           });
           break;
         case EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE:
           content = await sendMessage({
             ...payload,
             type: EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE,
-            tab: TAB_CONSTANT,
+            currentWebviewId: TAB_CONSTANT,
           });
           break;
         case EXTENSION_MESSAGE_TYPES.REFRESH_OF_PAGE:
           content = await sendMessage({
             ...payload,
             type: EXTENSION_MESSAGE_TYPES.REFRESH_OF_PAGE,
-            tab: TAB_CONSTANT,
+            currentWebviewId: TAB_CONSTANT,
           });
           break;
         default:

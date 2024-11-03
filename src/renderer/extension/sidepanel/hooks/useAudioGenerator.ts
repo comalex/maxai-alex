@@ -18,7 +18,7 @@ interface GenerateAudioPayload {
 }
 
 const useAudioGenerator = () => {
-  const { selectedModel, userId, chatJwtToken, accountName } = useGlobal();
+  const { selectedModel, userId, chatJwtToken, accountName, currentWebviewId } = useGlobal();
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isAudioGenerating, setIsAudioGenerating] = useState<boolean>(false);
 
@@ -53,7 +53,7 @@ const useAudioGenerator = () => {
         setAudioUrl(file_url);
         break;
       }
-      
+
     }
   };
 
@@ -77,7 +77,8 @@ const useAudioGenerator = () => {
     };
     sendMessage({
       type: EXTENSION_MESSAGE_TYPES.GENERATE_AUDIO,
-      payload
+      payload,
+      currentWebviewId,
     });
   };
 
