@@ -16,7 +16,9 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
+  const [isWebViewReady, setIsWebViewReady] = useState(false);
   const partitionId = `persist:${id}`;
+  const isReadyToLoad = dataFetched && ipcResponseReceived;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,11 +53,26 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     return window.electron.ipcRenderer.on('ipc-inject-response', handleIpcInjectResponse)
   }, []);
 
+  useEffect(() => {
+    const webview = document.getElementById(id) as any;
+    if (isWebViewReady) {
+      webview.executeJavaScript(`
+        if (!window.listenerAdded) {
+          document.addEventListener('click', (event) => {
+            console.log('Document clicked');
+            window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
+          });
+          window.listenerAdded = true;
+        }
+      `);
+    }
+  }, [isReadyToLoad, isWebViewReady]);
 
   useEffect(() => {
     const webview = document.getElementById(id) as any;
     if (webview && authData && authData.auth.bcTokenSha) {
       const handleDomReady = () => {
+        setIsWebViewReady(true);
         handleWebviewLoad(authData);
         webview.setZoomLevel(0.7);
         webview.setZoomFactor(0.7);
@@ -69,16 +86,10 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     const webview = document.getElementById(id) as any;
     if (webview) {
       // console.log("set localsotre");
-      // webview.executeJavaScript(`
-      //   localStorage.setItem('bcTokenSha', '${auth.auth.bcTokenSha}');
-      // `);
-      // Inject a button into the webview and send an event on click
       webview.executeJavaScript(`
-        document.addEventListener('click', (event) => {
-          console.log('Document clicked');
-          window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
-        });
+        localStorage.setItem('bcTokenSha', '${auth.auth.bcTokenSha}');
       `);
+      // Inject a button into the webview and send an event on click
 
       window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
     } else {
@@ -91,8 +102,8 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button>
       <webview
         id={id}
-        // src={dataFetched && ipcResponseReceived ? src : 'http://www.blankwebsite.com/'}
-        src={src}
+        src={isReadyToLoad ? src : 'http://www.blankwebsite.com/'}
+        // src={src}
         className="webview-content"
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
