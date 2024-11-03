@@ -11,7 +11,8 @@ let id = 1;
 
 export default function App() {
   const [tabs, setTabs] = useState<TabProperties[]>([
-    { id: 'tab-1', url: 'https://onlyfans.com/my/chats/chat/39895946/', label: 'Chat 1', active: true, },
+    // { id: 'tab-1', url: 'https://onlyfans.com/my/chats/chat/39895946/', label: 'Chat 1', active: true, },
+    { id: 'tab-1', url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', label: 'Chat 1', active: true, },
     { id: 'tab-2', url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', label: 'Chat 2', active: false },
   ]);
 

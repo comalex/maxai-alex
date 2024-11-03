@@ -4,6 +4,7 @@ import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { AuthData } from './types';
 
 const remoteMain = require('@electron/remote/main');
 // const Sentry = require('@sentry/node');
@@ -138,11 +139,18 @@ app.on('certificate-error', (event, webContents, url, error, certificate, callba
   callback(true); // Allow the connection despite the certificate error
 });
 
+let PROXIES: { [key: string]: { type: string; ip: string; port: string; username: string; password: string } } = {};
+
 app.on('login', (event, webContents, request, authInfo, callback) => {
   event.preventDefault();
-  console.log('Global login event triggered');
+  console.log('Global login event triggered', PROXIES);
   if (authInfo.isProxy) {
-    callback('sergeydurovinfo', 'yFTeSm6qy5');
+    const proxy = PROXIES[authInfo.host];
+    if (proxy) {
+      callback(proxy.username, proxy.password);
+    } else {
+      console.warn('Proxy authentication required but no proxy found for host:', authInfo.host);
+    }
   } else {
     // Handle other authentication scenarios if needed
     console.warn('Non-proxy authentication required');
@@ -150,12 +158,6 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 });
 
 app.whenReady().then(createWindow).catch(console.log);
-interface AuthData {
-  sess: string;
-  _cfuvid: string;
-  auth_id: string;
-  bcTokenSha: string;
-}
 
 ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) => {
   console.log(`Received message on channel 'ipc-example':`);
@@ -164,11 +166,22 @@ ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) =
   const session = require('electron').session.fromPartition(persistId);
   // console.log('session', session);
 
-  // session.setProxy({
-  //   proxyRules: 'http=178.253.13.44:59100;https=178.253.13.44:59100;socks5=178.253.13.44:59101'
-  // })
-  // .then(() => console.log('Proxy set successfully'))
-  // .catch((error) => console.error('Error setting proxy:', error));
+  let proxyStatus = 'No proxy information provided in auth data';
+  if (auth.proxy) {
+    const { type, ip, port } = auth.proxy;
+    const proxyRules = `http=${ip}:${port};https=${ip}:${port};socks5=${ip}:${port}`;
+    PROXIES[ip] = { type, ip, port, username: auth.proxy.username, password: auth.proxy.password }; // Add proxy to PROXIES
+    try {
+      await session.setProxy({ proxyRules });
+      console.log('Proxy set successfully');
+      proxyStatus = 'Proxy set successfully';
+    } catch (error) {
+      console.error('Error setting proxy:', error);
+      proxyStatus = 'Error setting proxy';
+    }
+  } else {
+    console.warn(proxyStatus);
+  }
 
   const cookies = [
     {
@@ -208,17 +221,20 @@ ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) =
     },
   ];
 
+  let cookiesStatus = 'Cookies set successfully';
   try {
     await Promise.all(cookies.map((cookie) => session.cookies.set(cookie)));
-    cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
+    // cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
   } catch (error) {
     console.error('Error setting cookies:', error);
+    cookiesStatus = 'Error setting cookies';
   }
-
 
   const result = {
     persistId,
-  }
+    proxyStatus,
+    cookiesStatus,
+  };
 
   event.reply('ipc-example-response', result);
   return result;
