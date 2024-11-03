@@ -235,17 +235,15 @@ ipcMain.handle('download-file', async (event, url) => {
   });
 });
 
-const iconName = path.join(__dirname, 'iconForDragAndDrop.png');
-const icon = fs.createWriteStream(iconName)
-
-https.get('https://img.icons8.com/ios/452/drag-and-drop.png', (response) => {
-  response.pipe(icon)
-})
-
 ipcMain.on('ondragstart', (event, filePath) => {
-  event.sender.startDrag({
-    // file: path.join(__dirname, filePath),
-    file: "/var/folders/gj/nvz3tqq50cs984w9pfgpkh2w0000gn/T/20240621101839_old_QQEFZV5FGFAS0I9CCTP55NVK7RSLR65E.mp3",
-    icon: iconName
-  })
+  const iconName = path.join(__dirname, '../../assets/arrows_14574301.png');
+  try {
+    event.sender.startDrag({
+      // file: path.join(__dirname, filePath),
+      file: filePath,
+      icon: iconName
+    });
+  } catch (error) {
+    console.error('Error starting drag operation:', error);
+  }
 })
