@@ -3,7 +3,7 @@ import {
   isProcessingContentPresent,
   parseMessagesFromSelectedThread,
   parseSubsFun,
-  refreshOfPage 
+  refreshOfPage
 } from "./services/only_fans_parser";
 import { parseHtml } from "./services/parseHtml";
 import { vaultParser } from "./services/vault_parser";
@@ -12,16 +12,19 @@ import { saveFileToIndexedDB, getFileFromIndexedDB } from "./background/utils";
 
 _onMessage.addListener((message, sender, sendResponse) => {
   console.log("Message received:", message);
-  const { type } = message;
+  const { type, tab } = message;
+  if (!tab) {
+    debugger
+  }
   switch (type) {
     case EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_MESSAGES:
-      parseMessagesFromSelectedThread().then(response => sendResponse(response));
+      parseMessagesFromSelectedThread(currentWebviewId).then(response => sendResponse(response));
       break;
     case EXTENSION_MESSAGE_TYPES.READ_CURRENT_VAULT:
       sendResponse(vaultParser());
       break;
     case EXTENSION_MESSAGE_TYPES.READ_HTML:
-      parseHtml().then(response => {
+      parseHtml(tab).then(response => {
         console.log("Parsed HTML response:", response);
         sendResponse(response);
       });
@@ -39,7 +42,7 @@ _onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(parseSubsFun());
       break;
     case EXTENSION_MESSAGE_TYPES.REFRESH_OF_PAGE:
-      refreshOfPage();
+      refreshOfPage(tab);
       sendResponse("refreshed");
       break;
     default:
