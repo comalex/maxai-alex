@@ -335,13 +335,13 @@ function IndexSidePanel() {
       }
     };
 
-    const intervalId = setInterval(() => {
-      if (!accountId) {
-        fetchData();
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 3000);
+    // const intervalId = setInterval(() => {
+    //   if (!accountId) {
+    //     fetchData();
+    //   } else {
+    //     clearInterval(intervalId);
+    //   }
+    // }, 3000);
 
     return () => clearInterval(intervalId);
   }, [accountId]);
