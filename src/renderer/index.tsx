@@ -19,8 +19,3 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
   // eslint-disable-next-line no-console
   console.log(arg);
 });
-window.electron.ipcRenderer.on('ipc-example', (arg) => {
-  console.log("log pong")
-  // eslint-disable-next-line no-console
-  console.log(arg);
-});

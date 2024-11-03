@@ -270,4 +270,12 @@ ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) =
   } catch (error) {
     console.error('Error setting cookies:', error);
   }
+
+
+  const result = {
+    persistId,
+  }
+
+  event.reply('ipc-example-response', result);
+  return result;
 });
