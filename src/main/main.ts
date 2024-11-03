@@ -188,12 +188,36 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
+app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+  console.warn(`Ignoring certificate error for URL: ${url}`);
+  event.preventDefault();
+  callback(true); // Allow the connection despite the certificate error
+});
+
+app.on('login', (event, webContents, request, authInfo, callback) => {
+  event.preventDefault();
+  console.log('Global login event triggered');
+  if (authInfo.isProxy) {
+    callback('sergeydurovinfo', 'yFTeSm6qy5');
+  } else {
+    // Handle other authentication scenarios if needed
+    console.warn('Non-proxy authentication required');
+  }
+});
+
 app.whenReady().then(createWindow).catch(console.log);
 ipcMain.on('ipc-example', async (event, ...args) => {
   console.log(`Received message on channel 'ipc-example':`, ...args);
-
   const session = require('electron').session.fromPartition('persist:tab-1');
   console.log('session', session);
+
+
+  session.setProxy({
+    proxyRules: 'http=178.253.13.44:59100;https=178.253.13.44:59100;socks5=178.253.13.44:59101'
+  })
+  .then(() => console.log('Proxy set successfully'))
+  .catch((error) => console.error('Error setting proxy:', error));
+
   const cookies = [
     {
       url: 'https://onlyfans.com',
