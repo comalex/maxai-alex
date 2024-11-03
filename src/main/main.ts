@@ -120,6 +120,11 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 
 app.whenReady().then(createWindow).catch(console.log);
 
+ipcMain.on('ipc-inject', async (event, [type]) => {
+  console.log('ipc-inject event received with arguments:', type);
+  mainWindow.webContents.send('ipc-inject-response', type);
+});
+
 ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) => {
   console.log(`Received message on channel 'ipc-example':`);
   console.log('Persist ID:', persistId);

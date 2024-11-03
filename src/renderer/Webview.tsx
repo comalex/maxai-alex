@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { AuthData } from './types';
 import { API_URL } from './config';
+import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
+import { sendMessage } from "./extension/background/bus";
 
 interface WebviewProps {
   src: string;
@@ -42,6 +44,15 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   }, []);
 
   useEffect(() => {
+    const handleIpcInjectResponse = (event: any, response: any) => {
+      console.log("Received ipc-inject-response:", response, "Event:", event);
+      sendMessage({ type: event, tab: id, socketApi: true });
+    };
+    return window.electron.ipcRenderer.on('ipc-inject-response', handleIpcInjectResponse)
+  }, []);
+
+
+  useEffect(() => {
     const webview = document.getElementById(id) as any;
     if (webview && authData && authData.auth.bcTokenSha) {
       const handleDomReady = () => {
@@ -56,11 +67,19 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   const handleWebviewLoad = (auth: AuthData) => {
     const webview = document.getElementById(id) as any;
-    if (webview && auth.auth.bcTokenSha) {
-      console.log("set localsotre");
+    if (webview) {
+      // console.log("set localsotre");
+      // webview.executeJavaScript(`
+      //   localStorage.setItem('bcTokenSha', '${auth.auth.bcTokenSha}');
+      // `);
+      // Inject a button into the webview and send an event on click
       webview.executeJavaScript(`
-        localStorage.setItem('bcTokenSha', '${auth.auth.bcTokenSha}');
+        document.addEventListener('click', (event) => {
+          console.log('Document clicked');
+          window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
+        });
       `);
+
       window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
     } else {
       console.error('Webview element not found or bcTokenSha not set');
@@ -69,6 +88,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
+      <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button>
       <webview
         id={id}
         // src={dataFetched && ipcResponseReceived ? src : 'http://www.blankwebsite.com/'}
