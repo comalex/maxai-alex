@@ -78,8 +78,8 @@ export type PlasmoMessaging = {
 }
 
 
-export const useStorage = (currentWebviewId: string, key: string, initialValue: any) => {
-  const storageKey = `${key}_${currentWebviewId}`;
+export const useStorage = (currentWebviewId: string, key: string, initialValue: any, isGlobal: boolean = true) => {
+  const storageKey = isGlobal ? key : `${key}_${currentWebviewId}`;
 
   const [storedValue, setStoredValue] = useState(() => {
     try {

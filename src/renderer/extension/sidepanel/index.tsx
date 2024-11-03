@@ -70,7 +70,7 @@ function IndexSidePanel({ tab }) {
     STORAGE_KEYS.SELECTED_MODEL
   );
 
-  const [chatter, setChatter] = useStorage<string>(tab.id, STORAGE_KEYS.CHATTER, null);
+  const [chatter, setChatter] = useStorage<string>(tab.id, STORAGE_KEYS.CHATTER, null, true);
 
   const [accountIdIsLoading, setAccountIdIsLoading] = useState<boolean>(false);
   const [accountId, setAccountId] = useState<string>(null);
@@ -99,7 +99,7 @@ function IndexSidePanel({ tab }) {
 
   const [content, setContent] = useState<Message | null>(null);
 
-  const [jwtToken, setJwtToken] = useStorage<string>(tab.id, STORAGE_KEYS.JWT_TOKEN);
+  const [jwtToken, setJwtToken] = useStorage<string>(tab.id, STORAGE_KEYS.JWT_TOKEN, null, true);
 
   const [customVaultId, setCustomVaultId] = useStorage<string | number>(tab.id,
     STORAGE_KEYS.CUSTOM_VAULT_ID
@@ -110,13 +110,17 @@ function IndexSidePanel({ tab }) {
   );
 
   const [chatJwtToken, setChatJwtToken] = useStorage<string>(tab.id,
-    STORAGE_KEYS.CHAT_JWT_TOKEN
+    STORAGE_KEYS.CHAT_JWT_TOKEN,
+    null,
+    true,
   );
 
-  const [userUUID, setUserUUID] = useStorage<string>(tab.id, STORAGE_KEYS.USER_UUID);
+  const [userUUID, setUserUUID] = useStorage<string>(tab.id, STORAGE_KEYS.USER_UUID, null, true);
 
   const [voiceGenAbility, setVoiceGenAbility] = useStorage<boolean>(tab.id,
-    STORAGE_KEYS.VOICE_GENERATION_ABILITY
+    STORAGE_KEYS.VOICE_GENERATION_ABILITY,
+    null,
+    true
   );
 
   const [lastFanSpend, setLastFanSpend] = useStorage<number>(tab.id,

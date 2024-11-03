@@ -99,7 +99,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
-      <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button>
+      {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
         src={isReadyToLoad ? src : 'http://www.blankwebsite.com/'}
