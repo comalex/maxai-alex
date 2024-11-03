@@ -46,6 +46,8 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     if (webview && authData && authData.auth.bcTokenSha) {
       const handleDomReady = () => {
         handleWebviewLoad(authData);
+        webview.setZoomLevel(0.7);
+        webview.setZoomFactor(0.7);
         webview.removeEventListener('dom-ready', handleDomReady);
       };
       webview.addEventListener('dom-ready', handleDomReady);
