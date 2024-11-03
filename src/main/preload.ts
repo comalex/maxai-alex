@@ -2,7 +2,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent, session } from 'electron';
 
 export type Channels = 'ipc-example';
-console.log(session);
 console.log("Preload script loaded");
 
 const electronHandler = {
@@ -35,10 +34,7 @@ const electronHandler = {
     //     return html;
     // }
     // return 'Webview not found';
-  },
-  setCookie: (cookie) => ipcRenderer.invoke('set-cookie', cookie),
-  createSession: (cookies) => ipcRenderer.invoke('create-session', cookies),
-
+  }
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

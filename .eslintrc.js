@@ -13,6 +13,7 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'error',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
+    'react/function-component-definition': 'off', // Disable rule for function component not being a function declaration
   },
   parserOptions: {
     ecmaVersion: 2022,
