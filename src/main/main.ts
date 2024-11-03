@@ -98,45 +98,45 @@ if (isDebug) {
 }
 
 const createWindow = async () => {
-  const customSession = session.fromPartition('persist:tab-1', { cache: true });
+  // const customSession = session.fromPartition('persist:tab-1', { cache: true });
 
-  const cookies = [
-    {
-      url: 'https://onlyfans.com',
-      name: 'sess',
-      value: '2fbcilfq7a7e0ms68h3jd95n7b',
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: '_cfuvid',
-      value:
-        'R6Cy8f.ASQAuacdwq9sVyV08W4ix_Tw0dco0OgSUBqs-1730013197638-0.0.1.1-604800000',
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: 'lang',
-      value: 'en',
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: 'auth_id',
-      value: '394757173',
-      httpOnly: true,
-      secure: true,
-    },
-  ];
+  // const cookies = [
+  //   {
+  //     url: 'https://onlyfans.com',
+  //     name: 'sess',
+  //     value: '2fbcilfq7a7e0ms68h3jd95n7b',
+  //     httpOnly: true,
+  //     secure: true,
+  //   },
+  //   {
+  //     url: 'https://onlyfans.com',
+  //     name: '_cfuvid',
+  //     value:
+  //       'R6Cy8f.ASQAuacdwq9sVyV08W4ix_Tw0dco0OgSUBqs-1730013197638-0.0.1.1-604800000',
+  //     httpOnly: true,
+  //     secure: true,
+  //   },
+  //   {
+  //     url: 'https://onlyfans.com',
+  //     name: 'lang',
+  //     value: 'en',
+  //     httpOnly: true,
+  //     secure: true,
+  //   },
+  //   {
+  //     url: 'https://onlyfans.com',
+  //     name: 'auth_id',
+  //     value: '394757173',
+  //     httpOnly: true,
+  //     secure: true,
+  //   },
+  // ];
 
-  cookies.forEach((cookie) => {
-    customSession.cookies.set(cookie).catch((error) => {
-      console.error('Error setting cookie:', error);
-    });
-  });
+  // cookies.forEach((cookie) => {
+  //   customSession.cookies.set(cookie).catch((error) => {
+  //     console.error('Error setting cookie:', error);
+  //   });
+  // });
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -206,31 +206,38 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 });
 
 app.whenReady().then(createWindow).catch(console.log);
-ipcMain.on('ipc-example', async (event, ...args) => {
-  console.log(`Received message on channel 'ipc-example':`, ...args);
-  const session = require('electron').session.fromPartition('persist:tab-1');
-  console.log('session', session);
+interface AuthData {
+  sess: string;
+  _cfuvid: string;
+  auth_id: string;
+  bcTokenSha: string;
+}
 
+ipcMain.on('ipc-example', async (event, [persistId, auth]: [string, AuthData]) => {
+  console.log(`Received message on channel 'ipc-example':`);
+  console.log('Persist ID:', persistId);
+  console.log('Auth Data:', auth);
+  const session = require('electron').session.fromPartition(persistId);
+  // console.log('session', session);
 
-  session.setProxy({
-    proxyRules: 'http=178.253.13.44:59100;https=178.253.13.44:59100;socks5=178.253.13.44:59101'
-  })
-  .then(() => console.log('Proxy set successfully'))
-  .catch((error) => console.error('Error setting proxy:', error));
+  // session.setProxy({
+  //   proxyRules: 'http=178.253.13.44:59100;https=178.253.13.44:59100;socks5=178.253.13.44:59101'
+  // })
+  // .then(() => console.log('Proxy set successfully'))
+  // .catch((error) => console.error('Error setting proxy:', error));
 
   const cookies = [
     {
       url: 'https://onlyfans.com',
       name: 'sess',
-      value: '42i1g4qtg99el52uki0vcghc1d',
+      value: auth.sess,
       httpOnly: true,
       secure: true,
     },
     {
       url: 'https://onlyfans.com',
       name: '_cfuvid',
-      value:
-        '6j0Vm.IsWq9VRx7fq8wVVKsSCWpjJrIsvWbUm3RV93M-1730407033603-0.0.1.1-604800000',
+      value: auth._cfuvid,
       httpOnly: true,
       secure: true,
     },
@@ -244,7 +251,14 @@ ipcMain.on('ipc-example', async (event, ...args) => {
     {
       url: 'https://onlyfans.com',
       name: 'auth_id',
-      value: '394757173',
+      value: auth.auth_id,
+      httpOnly: true,
+      secure: true,
+    },
+    {
+      url: 'https://onlyfans.com',
+      name: 'test',
+      value: 'alex',
       httpOnly: true,
       secure: true,
     },
@@ -252,7 +266,7 @@ ipcMain.on('ipc-example', async (event, ...args) => {
 
   try {
     await Promise.all(cookies.map((cookie) => session.cookies.set(cookie)));
-    cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}`));
+    cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
   } catch (error) {
     console.error('Error setting cookies:', error);
   }
