@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { AuthData } from './types';
+import { API_URL } from './config';
 
 interface WebviewProps {
   src: string;
@@ -18,8 +19,8 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/v2/app/${id}`);
-        // const response = await axios.get('https://dev-api.trymax.ai/api/v2/app');
+        // const response = await axios.get(`http://127.0.0.1:8000/api/v2/app/${id}`);
+        const response = await axios.get(`${API_URL}/api/v2/app/${id}`);
         setAuthData(response.data);
         console.log(response.data);
         setDataFetched(true);
