@@ -24,10 +24,3 @@ window.electron.ipcRenderer.on('ipc-example', (arg) => {
   // eslint-disable-next-line no-console
   console.log(arg);
 });
-
-// setTimeout(() => {
-//   window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
-// }, 2220);
-
-// window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
-// window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
