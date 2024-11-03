@@ -1,12 +1,19 @@
 // preload.js
 import { contextBridge, ipcRenderer, IpcRendererEvent, session } from 'electron';
 
+
+
 export type Channels = 'ipc-example';
 console.log("Preload script loaded");
 
 const electronHandler = {
   session,
   ipcRenderer: {
+    getEnv: () => {
+      console.log("getEnv");
+      console.log(process.env);
+      // return process.env;
+    },
     sendMessage(channel: Channels, ...args: unknown[]) {
       console.log("Sending message on channel:", channel);
       ipcRenderer.send(channel, ...args);

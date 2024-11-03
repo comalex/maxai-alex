@@ -16,9 +16,11 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/v2/app');
+        // const response = await axios.get('http://127.0.0.1:8000/api/v2/app');
+        const response = await axios.get('https://dev-api.trymax.ai/api/v2/app');
         const { auth } = response.data;
         setAuthData(auth);
+        console.log(auth)
         setDataFetched(true);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -30,7 +32,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   useEffect(() => {
     const handleIpcResponse = (arg: any) => {
-      console.log(arg);
+      console.log("handleIpcResponse", arg);
       setIpcResponseReceived(true);
     };
 
@@ -68,7 +70,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     <div>
       <webview
         id={id}
-        src={dataFetched && ipcResponseReceived ? src : 'https://png.pngtree.com/png-clipart/20190918/ourmid/pngtree-load-the-3273350-png-image_1733730.jpg'}
+        src={dataFetched && ipcResponseReceived ? src : 'http://www.blankwebsite.com/'}
         className="webview-content"
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
