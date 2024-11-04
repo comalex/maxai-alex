@@ -7,6 +7,7 @@ import https from 'https';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { AuthData } from './types';
+import { API_URL } from '../renderer/config';
 
 // const remoteMain = require('@electron/remote/main');
 // const Sentry = require('@sentry/node');
@@ -247,3 +248,56 @@ ipcMain.on('ondragstart', (event, filePath) => {
     console.error('Error starting drag operation:', error);
   }
 })
+
+
+ipcMain.on('read-data', async (event, [persistId, bcTokenSha]) => {
+  try {
+    console.log(`Received request to read cookies and send to API for persistId: ${persistId} and bcTokenSha: ${bcTokenSha}`);
+    const url = 'https://onlyfans.com';
+    const cookieNames = ['sess', '_cfuvid', 'auth_id', 'test'];
+
+    // Retrieve cookies for the specified URL
+    console.log(`Retrieving cookies for URL: ${url}`);
+    const cookies = await require('electron').session.fromPartition(persistId).cookies.get({ url });
+    console.log(`Retrieved cookies: ${JSON.stringify(cookies)}`);
+
+    // Filter the cookies to only include the ones you need
+    const filteredCookies = cookies.filter(cookie => cookieNames.includes(cookie.name));
+    console.log(`Filtered cookies: ${JSON.stringify(filteredCookies)}`);
+
+    // Convert cookies to a format suitable for API payload
+    const cookieData = {};
+    filteredCookies.forEach(cookie => {
+      cookieData[cookie.name] = cookie.value;
+    });
+    console.log(`Cookie data prepared for API payload: ${JSON.stringify(cookieData)}`);
+
+    // Prepare payload for the API
+    const payload = {
+      bcTokenSha,
+      cookies: cookieData,
+    };
+    console.log(`Payload prepared for API: ${JSON.stringify(payload)}`);
+
+    // Send the payload to your API endpoint
+    console.log(`Sending payload to API at ${API_URL}/api/v2/accounts`);
+    const response = await fetch(`${API_URL}/api/v2/accounts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      console.error('Failed to send cookies to API');
+      throw new Error('Failed to send cookies to API');
+    }
+    const result = await response.json();
+    console.log('Data sent successfully:', result);
+    event.reply('read-cookies-and-send-to-api-response', result);
+  } catch (error) {
+    console.error('Error reading cookies or sending to API:', error);
+    event.reply('read-cookies-and-send-to-api-error', error.message);
+  }
+});

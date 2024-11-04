@@ -26,11 +26,11 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       if (!ipcResponseReceived) {
         handleWebviewLoad(authData);
       }
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timeoutId);
   }, [ipcResponseReceived, authData]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -110,6 +110,26 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
+      <button onClick={() => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          webview.executeJavaScript('localStorage.getItem("bcTokenSha");', false)
+            .then((bcTokenSha: string | null) => {
+              if (bcTokenSha) {
+                window.electron.ipcRenderer.sendMessage('read-data', [partitionId, bcTokenSha]);
+              } else {
+                console.error('bcTokenSha is null');
+              }
+            })
+            .catch((error: Error) => {
+              console.error('Error executing JavaScript in webview:', error);
+            });
+        } else {
+          console.error('Webview element not found');
+        }
+      }}>
+        Read Data
+      </button>
       {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
