@@ -104,7 +104,11 @@ const Debug: React.FC<DebugProps> = () => {
                   border: "none",
                   padding: 0,
                   cursor: "pointer",
-                  textAlign: "left"
+                  textAlign: "left",
+                  maxWidth: "100%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
                 }}
               >
                 {index}: {message.replace("::", " ")}

@@ -22,7 +22,7 @@ interface LoginProps {
   }) => void;
 }
 
-export const EXT_VERSION = "0.1";
+export const EXT_VERSION = "0.2";
 // export const EXT_VERSION = packageJson?.version
 //   ? Number(packageJson.version)
 //   : null;

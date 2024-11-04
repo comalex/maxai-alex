@@ -32,7 +32,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
         pinnedRight={<button onClick={() => addTab(tabs, setTabs)}>+</button>}
       />
 
-      <div style={{ width: '100%', minHeight: '100px' }}>
+      <div style={{ width: '100%', minHeight: '100px', maxWidth: '100%' }}>
         {tabs.map(tab => (
           <div
             key={tab.id}
@@ -42,7 +42,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
               <div style={{ flex: '0 0 70%' }}>
                 <Webview src={tab.url} id={tab.id} />
               </div>
-              <div style={{ flex: '0 0 30%' }}>
+              <div style={{ flex: '0 0 30%', maxWidth: '500px', height: '100vh' }}>
                 <SidePanel tab={tab} />
               </div>
             </div>
