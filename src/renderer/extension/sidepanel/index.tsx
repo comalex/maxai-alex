@@ -325,13 +325,13 @@ function IndexSidePanel({ tab }) {
         const data = await api.retrieveDataFromPage(currentWebviewId);
         console.log("retrieveDataFromPage data", data);
         if (!data.accountId) {
-          toast({
-            title: "Opening OnlyFans page...",
-            status: "loading",
-            duration: 1000,
-            isClosable: true,
-            position: "bottom"
-          });
+          // toast({
+          //   title: "Opening OnlyFans page...",
+          //   status: "loading",
+          //   duration: 1000,
+          //   isClosable: true,
+          //   position: "bottom"
+          // });
           return;
         }
         setAccountId(data.accountId);
