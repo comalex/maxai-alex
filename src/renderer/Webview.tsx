@@ -18,8 +18,19 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const partitionId = `persist:${id}`;
+  console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
   const isReadyToLoad = dataFetched && ipcResponseReceived;
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!ipcResponseReceived) {
+        handleWebviewLoad(authData);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [ipcResponseReceived, authData]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -102,7 +113,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
-        src={isReadyToLoad ? src : 'http://www.blankwebsite.com/'}
+        src={isReadyToLoad ? src : 'https://portal.trymax.ai/spinner'}
         // src={src}
         className="webview-content"
         partition={partitionId}
