@@ -13,6 +13,7 @@ interface WebviewProps {
 
 
 const Webview: React.FC<WebviewProps> = ({ src, id }) => {
+  const [config, setConfig] = useState('');
   const [dataFetched, setDataFetched] = useState(false);
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
@@ -30,6 +31,17 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
     return () => clearTimeout(timeoutId);
   }, [ipcResponseReceived, authData]);
+
+  useEffect(() => {
+    const fetchPreloadPath = async () => {
+      if (window.electron && window.electron.ipcRenderer && window.electron.getConfig) {
+        const config = await window.electron.getConfig();
+        console.log("config", config)
+        setConfig(config);
+      }
+    };
+    fetchPreloadPath();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +82,6 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       webview.executeJavaScript(`
         if (!window.listenerAdded) {
           document.addEventListener('click', (event) => {
-            console.log('Document clicked');
             window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
           });
           window.listenerAdded = true;
@@ -107,7 +118,9 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       console.error('Webview element not found or bcTokenSha not set');
     }
   };
-
+  if (!config.path) {
+    return;
+  }
   return (
     <div>
       <button onClick={() => {
@@ -139,7 +152,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
         style={{ height: '100vh' }}
-        preload="file:///Users/oleksiistupak/projects/spencer-chat/webSocket-App/maxaiapp/src/renderer/webview-preload.js"
+        preload={`file://${config.path}/preload.js`}
       />
     </div>
   );

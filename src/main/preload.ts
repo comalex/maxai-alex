@@ -43,7 +43,8 @@ const electronHandler = {
   },
   getWebviewHTML: async (event, webviewId) => {
     return ipcRenderer.invoke('get-webview-html', webviewId);
-  }
+  },
+  getConfig: async () => await ipcRenderer.invoke('get-config'),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

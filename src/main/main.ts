@@ -301,3 +301,10 @@ ipcMain.on('read-data', async (event, [persistId, bcTokenSha]) => {
     event.reply('read-cookies-and-send-to-api-error', error.message);
   }
 });
+
+
+ipcMain.handle('get-config', () => {
+  return {
+    path: __dirname,
+  }
+});
