@@ -99,6 +99,27 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
           window.listenerAdded = true;
         }
       `);
+
+      executeJavaScriptWithCatch(webview, `
+        if (!window.bht) {
+          const waitForHeader = () => {
+            const headerElement = document.querySelector('.l-header');
+            if (headerElement) {
+              const bcTokenSha = localStorage.getItem("bcTokenSha");
+              if (bcTokenSha) {
+                window.electron.ipcRenderer.sendMessage('read-data', ['${creatorUUID}', bcTokenSha]);
+              } else {
+                console.error('bcTokenSha is null');
+              }
+            } else {
+              setTimeout(waitForHeader, 1000);
+            }
+          };
+
+          waitForHeader();
+          window.bht = true;
+        }
+      `);
     }
   }, [isReadyToLoad, isWebViewReady]);
 
@@ -131,6 +152,35 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       console.error('Webview element not found or bcTokenSha not set');
     }
   };
+
+  const getMyIp = () => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          executeJavaScriptWithCatch(webview, `fetch('${API_URL}/v1/api/get-my-ip')
+            .then(response => response.json())
+            .then(data => alert('Your IP is: ' + data.ip))
+            .catch(error => console.error('Error fetching IP:', error));`)
+            .catch(error => console.error('Error executing JavaScript in webview:', error));
+        } else {
+          console.error('Webview element not found');
+        }
+      }
+
+  const getCookies = () => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          executeJavaScriptWithCatch(webview, 'localStorage.getItem("bcTokenSha");')
+            .then((bcTokenSha: string | null) => {
+              if (bcTokenSha) {
+                window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
+              } else {
+                console.error('bcTokenSha is null');
+              }
+            });
+        } else {
+          console.error('Webview element not found');
+        }
+      };
 
   const injectBlurScript = () => {
     const webview = document.getElementById(id) as any;
@@ -168,39 +218,13 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
-      <button onClick={injectBlurScript}>
+      <button className="btn" onClick={injectBlurScript}>
         Blur Images
       </button>
-      <button onClick={() => {
-        const webview = document.getElementById(id) as HTMLWebViewElement | null;
-        if (webview) {
-          executeJavaScriptWithCatch(webview, 'localStorage.getItem("bcTokenSha");')
-            .then((bcTokenSha: string | null) => {
-              if (bcTokenSha) {
-                window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
-              } else {
-                console.error('bcTokenSha is null');
-              }
-            });
-        } else {
-          console.error('Webview element not found');
-        }
-      }}>
+      <button className="btn" onClick={getCookies}>
         Save Cookies
       </button>
-
-      <button onClick={() => {
-        const webview = document.getElementById(id) as HTMLWebViewElement | null;
-        if (webview) {
-          executeJavaScriptWithCatch(webview, `fetch('${API_URL}/v1/api/get-my-ip')
-            .then(response => response.json())
-            .then(data => alert('Your IP is: ' + data.ip))
-            .catch(error => console.error('Error fetching IP:', error));`)
-            .catch(error => console.error('Error executing JavaScript in webview:', error));
-        } else {
-          console.error('Webview element not found');
-        }
-      }}>
+      <button className="btn" onClick={getMyIp}>
         Get My IP
       </button>
       <webview
