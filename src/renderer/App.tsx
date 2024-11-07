@@ -23,7 +23,7 @@ export default function App() {
         );
         const fetchedTabs = response.data.map((account: { uuid: string; label: string }, index: number) => ({
           id: account.creator_uuid,
-          url: 'https://onlyfans.com/my/chats/chat/196992987/', // Assuming a default URL for each tab
+          url: 'https://onlyfans.com/my/chats', // Assuming a default URL for each tab
           label: account.creator_id,
           active: index === 0, // Make the first tab active
         }));

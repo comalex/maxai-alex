@@ -1,3 +1,12 @@
+export interface Proxy {
+  type: string;
+  host: string;
+  port: string;
+  username: string;
+  password: string;
+}
+
+
 export interface AuthData {
   app_settings: {
     sess: string;
@@ -5,11 +14,6 @@ export interface AuthData {
     auth_id: string;
     bcTokenSha: string;
   };
-  proxy: {
-    type: string;
-    ip: string;
-    port: string;
-    username: string;
-    password: string;
-  };
+  proxy: Proxy;
 }
+

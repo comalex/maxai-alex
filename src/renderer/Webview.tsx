@@ -23,6 +23,14 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
   const isReadyToLoad = dataFetched && ipcResponseReceived;
 
+  const executeJavaScriptWithCatch = (webview: any, script: string) => {
+    try {
+      return webview.executeJavaScript(script);
+    } catch (error) {
+      console.error('Error executing JavaScript in webview:', error);
+    }
+  };
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (!ipcResponseReceived) {
@@ -83,7 +91,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const webview = document.getElementById(id) as any;
     if (isWebViewReady) {
-      webview.executeJavaScript(`
+      executeJavaScriptWithCatch(webview, `
         if (!window.listenerAdded) {
           document.addEventListener('click', (event) => {
             window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
@@ -112,7 +120,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     const webview = document.getElementById(id) as any;
     if (webview) {
       if (auth?.app_settings?.bcTokenSha) {
-        webview.executeJavaScript(`
+        executeJavaScriptWithCatch(webview, `
           localStorage.setItem('bcTokenSha', '${auth?.app_settings?.bcTokenSha}');
         `);
         window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
@@ -122,15 +130,12 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     } else {
       console.error('Webview element not found or bcTokenSha not set');
     }
-    // if (webview) {
-    //   window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
-    // }
   };
 
   const injectBlurScript = () => {
     const webview = document.getElementById(id) as any;
     if (webview) {
-      webview.executeJavaScript(`
+      executeJavaScriptWithCatch(webview, `
         function blurImage(image) {
           image.style.filter = "blur(${blurLevel}px)";
         }
@@ -163,35 +168,40 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
-      {/* <input
-        type="range"
-        min="0"
-        max="20"
-        value={blurLevel}
-        onChange={(e) => setBlurLevel(Number(e.target.value))}
-      /> */}
       <button onClick={injectBlurScript}>
         Blur Images
       </button>
       <button onClick={() => {
         const webview = document.getElementById(id) as HTMLWebViewElement | null;
         if (webview) {
-          webview.executeJavaScript('localStorage.getItem("bcTokenSha");', false)
+          executeJavaScriptWithCatch(webview, 'localStorage.getItem("bcTokenSha");')
             .then((bcTokenSha: string | null) => {
               if (bcTokenSha) {
                 window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
               } else {
                 console.error('bcTokenSha is null');
               }
-            })
-            .catch((error: Error) => {
-              console.error('Error executing JavaScript in webview:', error);
             });
         } else {
           console.error('Webview element not found');
         }
       }}>
         Save Cookies
+      </button>
+
+      <button onClick={() => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          executeJavaScriptWithCatch(webview, `fetch('${API_URL}/v1/api/get-my-ip')
+            .then(response => response.json())
+            .then(data => alert('Your IP is: ' + data.ip))
+            .catch(error => console.error('Error fetching IP:', error));`)
+            .catch(error => console.error('Error executing JavaScript in webview:', error));
+        } else {
+          console.error('Webview element not found');
+        }
+      }}>
+        Get My IP
       </button>
       <webview
         id={id}
