@@ -98,11 +98,11 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-  console.warn(`Ignoring certificate error for URL: ${url}`);
-  event.preventDefault();
-  callback(true); // Allow the connection despite the certificate error
-});
+// app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+//   console.warn(`Ignoring certificate error for URL: ${url}`);
+//   event.preventDefault();
+//   callback(true); // Allow the connection despite the certificate error
+// });
 
 let PROXIES: { [key: string]: { type: string; ip: string; port: string; username: string; password: string } } = {};
 
