@@ -134,8 +134,8 @@ const PaymentSummary = ({
   const [totalTipAmount, setTotalTipAmount] = useState<number | null>(null);
   const [updatingPaymentsData, setUpdatingPaymentsData] = useState(false);
   const [showAllStats, setShowAllStats] = useState<boolean>(false);
-  const { width: extensionWidth } = useWindowSize();
-
+  // const { width: extensionWidth } = useWindowSize();
+  const extensionWidth = 300;
   const [totalPurchaseAmount, setTotalPurchaseAmount] = useState<number | null>(
     null
   );

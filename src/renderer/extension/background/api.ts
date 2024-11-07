@@ -1,4 +1,4 @@
-import { API_URL } from "../config/constants";
+import { API_URL, STORAGE_KEYS } from "../config/constants";
 import type { Model } from "../config/types";
 
 export function getURL(path = "") {
@@ -42,6 +42,8 @@ export async function login(
     }
     // Save email to local store
     try {
+      console.log("result", result)
+      await localStorage.setItem(STORAGE_KEYS.AGENCY_UUID, result.data.agency_uuid);
       await localStorage.setItem('userEmail', email);
       console.log("Email saved to local storage.");
     } catch (storageError) {

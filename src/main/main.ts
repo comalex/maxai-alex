@@ -6,7 +6,7 @@ import fs from 'fs';
 import https from 'https';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { AuthData } from './types';
+import { AuthData, Proxy } from './types';
 import { API_URL, X_API_KEY } from '../renderer/config';
 
 // const remoteMain = require('@electron/remote/main');
@@ -104,7 +104,7 @@ app.on('window-all-closed', () => {
 //   callback(true); // Allow the connection despite the certificate error
 // });
 
-let PROXIES: { [key: string]: { type: string; ip: string; port: string; username: string; password: string } } = {};
+let PROXIES: { [key: string]: Proxy } = {};
 
 app.on('login', (event, webContents, request, authInfo, callback) => {
   event.preventDefault();
@@ -135,14 +135,16 @@ ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) =
   const { proxy, app_settings } = data;
   const auth = app_settings.cookies;
   console.log('Auth Data:', auth);
+  console.log('Proxy:', proxy);
   const session = require('electron').session.fromPartition(persistId);
   // console.log('session', session);
 
   let proxyStatus = 'No proxy information provided in auth data';
-  if (false && proxy) {
-    const { type, ip, port } = proxy;
-    const proxyRules = `http=${ip}:${port};https=${ip}:${port};socks5=${ip}:${port}`;
-    PROXIES[ip] = { type, ip, port, username: proxy.username, password: proxy.password }; // Add proxy to PROXIES
+  if (proxy && proxy.host) {
+    const { host, port, type } = proxy;
+    const proxyRules = type ? `${type}=${host}:${port}` : `http=${host}:${port};https=${host}:${port};socks5=${host}:${port}`;
+    PROXIES[host] = { type, host, port, username: proxy.username, password: proxy.password }; // Add proxy to PROXIES
+    console.log("proxyRules", proxyRules)
     try {
       await session.setProxy({ proxyRules });
       console.log('Proxy set successfully');

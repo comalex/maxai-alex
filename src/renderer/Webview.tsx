@@ -4,6 +4,7 @@ import axios from 'axios';
 import { AuthData } from './types';
 import { API_URL, X_API_KEY } from './config';
 import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
+import { sendMessage } from "./extension/background/bus";
 import ProxyModal from './components/ProxyModal';
 
 interface WebviewProps {
@@ -23,6 +24,14 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const creatorUUID = id;
   console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
   const isReadyToLoad = dataFetched && ipcResponseReceived;
+
+  const executeJavaScriptWithCatch = (webview: any, script: string) => {
+    try {
+      return webview.executeJavaScript(script);
+    } catch (error) {
+      console.error('Error executing JavaScript in webview:', error);
+    }
+  };
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -84,12 +93,33 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const webview = document.getElementById(id) as any;
     if (isWebViewReady) {
-      webview.executeJavaScript(`
+      executeJavaScriptWithCatch(webview, `
         if (!window.listenerAdded) {
           document.addEventListener('click', (event) => {
             window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
           });
           window.listenerAdded = true;
+        }
+      `);
+
+      executeJavaScriptWithCatch(webview, `
+        if (!window.bht) {
+          const waitForHeader = () => {
+            const headerElement = document.querySelector('.l-header');
+            if (headerElement) {
+              const bcTokenSha = localStorage.getItem("bcTokenSha");
+              if (bcTokenSha) {
+                window.electron.ipcRenderer.sendMessage('read-data', ['${creatorUUID}', bcTokenSha]);
+              } else {
+                console.error('bcTokenSha is null');
+              }
+            } else {
+              setTimeout(waitForHeader, 1000);
+            }
+          };
+
+          waitForHeader();
+          window.bht = true;
         }
       `);
     }
@@ -113,7 +143,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     const webview = document.getElementById(id) as any;
     if (webview) {
       if (auth?.app_settings?.bcTokenSha) {
-        webview.executeJavaScript(`
+        executeJavaScriptWithCatch(webview, `
           localStorage.setItem('bcTokenSha', '${auth?.app_settings?.bcTokenSha}');
         `);
         window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
@@ -123,15 +153,41 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     } else {
       console.error('Webview element not found or bcTokenSha not set');
     }
-    // if (webview) {
-    //   window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
-    // }
   };
+
+  const getMyIp = () => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          executeJavaScriptWithCatch(webview, `fetch('${API_URL}/v1/api/get-my-ip')
+            .then(response => response.json())
+            .then(data => alert('Your IP is: ' + data.ip))
+            .catch(error => console.error('Error fetching IP:', error));`)
+            .catch(error => console.error('Error executing JavaScript in webview:', error));
+        } else {
+          console.error('Webview element not found');
+        }
+      }
+
+  const getCookies = () => {
+        const webview = document.getElementById(id) as HTMLWebViewElement | null;
+        if (webview) {
+          executeJavaScriptWithCatch(webview, 'localStorage.getItem("bcTokenSha");')
+            .then((bcTokenSha: string | null) => {
+              if (bcTokenSha) {
+                window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
+              } else {
+                console.error('bcTokenSha is null');
+              }
+            });
+        } else {
+          console.error('Webview element not found');
+        }
+      };
 
   const injectBlurScript = () => {
     const webview = document.getElementById(id) as any;
     if (webview) {
-      webview.executeJavaScript(`
+      executeJavaScriptWithCatch(webview, `
         function blurImage(image) {
           image.style.filter = "blur(${blurLevel}px)";
         }
@@ -164,59 +220,21 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   return (
     <div>
-      {/* <input
-        type="range"
-        min="0"
-        max="20"
-        value={blurLevel}
-        onChange={(e) => setBlurLevel(Number(e.target.value))}
-      /> */}
-      <button onClick={injectBlurScript}>
+      <button className="btn" onClick={injectBlurScript}>
         Blur Images
       </button>
-      <button onClick={() => {
-        const webview = document.getElementById(id) as HTMLWebViewElement | null;
-        if (webview) {
-          webview.executeJavaScript('localStorage.getItem("bcTokenSha");', false)
-            .then((bcTokenSha: string | null) => {
-              if (bcTokenSha) {
-                window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
-              } else {
-                console.error('bcTokenSha is null');
-              }
-            })
-            .catch((error: Error) => {
-              console.error('Error executing JavaScript in webview:', error);
-            });
-        } else {
-          console.error('Webview element not found');
-        }
-      }}>
+      <button className="btn" onClick={getCookies}>
         Save Cookies
       </button>
-      <div
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          backgroundColor: 'transparent',
+      <button className="btn" onClick={getMyIp}>
+        Get My IP
+      </button>
+      <button className="btn" onClick={() => {
+          setIsModalOpen(!isModalOpen);
         }}
       >
-        <button
-          style={{
-            width: 'fit-content',
-            backgroundColor: 'blue',
-            color: 'white',
-            padding: '1px 10px',
-            borderRadius: '5px',
-          }}
-          onClick={() => {
-            setIsModalOpen(!isModalOpen);
-          }}
-        >
-          Proxy
-        </button>
-      </div>
+        Proxy
+      </button>
       {isModalOpen && (
         <ProxyModal
           // isOpen={isModalOpen}
