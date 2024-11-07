@@ -5,6 +5,7 @@ import { AuthData } from './types';
 import { API_URL, X_API_KEY } from './config';
 import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
 import { sendMessage } from "./extension/background/bus";
+import ProxyModal from './components/ProxyModal';
 
 interface WebviewProps {
   src: string;
@@ -18,6 +19,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const [blurLevel, setBlurLevel] = useState(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const partitionId = `persist:${id}`;
   const creatorUUID = id;
   console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
@@ -227,6 +229,21 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       <button className="btn" onClick={getMyIp}>
         Get My IP
       </button>
+      <button className="btn" onClick={() => {
+          setIsModalOpen(!isModalOpen);
+        }}
+      >
+        Proxy
+      </button>
+      {isModalOpen && (
+        <ProxyModal
+          // isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          creatorUUID={creatorUUID}
+          elem_id={id}
+        />
+      )}
+      {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
         src={isReadyToLoad ? src : 'https://portal.trymax.ai/spinner'}
