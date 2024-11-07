@@ -18,6 +18,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const [blurLevel, setBlurLevel] = useState(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const partitionId = `persist:${id}`;
   const creatorUUID = id;
   console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
