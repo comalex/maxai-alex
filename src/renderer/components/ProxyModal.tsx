@@ -55,6 +55,7 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
       const data = await response.json();
       console.log('creatorSettings 2222', data);
       setCreatorSettings(data);
+      setSelectedProxy(data?.proxy);
     } catch (error) {
       console.error('Error fetching creator settings:', error);
       setCreatorSettings({});
@@ -394,21 +395,16 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
                     style={{
                       marginLeft: '10px',
                       backgroundColor:
-                        selectedProxy === proxy ||
-                        creatorSettings?.proxy?.uuid === proxy.uuid
+                        selectedProxy?.uuid === proxy?.uuid
                           ? 'darkblue'
                           : 'lightblue',
                       color:
-                        selectedProxy === proxy ||
-                        creatorSettings?.proxy?.uuid === proxy.uuid
-                          ? 'white'
-                          : 'black',
+                        selectedProxy?.uuid === proxy?.uuid ? 'white' : 'black',
                       borderRadius: '5px',
                       padding: '5px',
                     }}
                   >
-                    {selectedProxy?.uuid === proxy?.uuid ||
-                    creatorSettings?.proxy?.uuid === proxy.uuid
+                    {selectedProxy?.uuid === proxy?.uuid
                       ? 'Selected'
                       : 'Select'}
                   </button>
