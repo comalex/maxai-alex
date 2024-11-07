@@ -5,10 +5,10 @@ import {
   FormLabel,
   Input,
   useToast,
-  Box
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import { login } from "../background/api";
+  Box,
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { login } from '../background/api';
 
 // import packageJson from "../../package.json";
 
@@ -22,26 +22,26 @@ interface LoginProps {
   }) => void;
 }
 
-export const EXT_VERSION = "0.3";
+export const EXT_VERSION = '0.5';
 // export const EXT_VERSION = packageJson?.version
 //   ? Number(packageJson.version)
 //   : null;
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const getToken = async () => {
     setIsLoading(true);
     try {
-      console.log("start");
+      console.log('start');
       const response = await login(email, password, EXT_VERSION);
       const data = response?.data;
       setIsLoading(false);
       if (!data) {
-        throw new Error("Try please later");
+        throw new Error('Try please later');
       }
 
       const jwtChatToken = data.chat_jwt_token;
@@ -49,23 +49,23 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       const memberUUID = data.uuid;
       const voiceGenAbility = data.voice_generation_ability;
       if (!jwtChatToken || !jwtToken) {
-        throw new Error("Failed, please try later.");
+        throw new Error('Failed, please try later.');
       }
       onLoginSuccess({
         jwtChatToken,
         jwtToken,
         memberUUID,
         email,
-        voiceGenAbility
+        voiceGenAbility,
       });
     } catch (error) {
       setIsLoading(false);
       toast({
-        title: "Login failed",
+        title: 'Login failed',
         description: error.message,
-        status: "error",
+        status: 'error',
         duration: 1000,
-        isClosable: true
+        isClosable: true,
       });
     }
   };
@@ -76,7 +76,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       align="stretch"
       padding={4}
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
+        if (e.key === 'Enter') {
           getToken();
         }
       }}
