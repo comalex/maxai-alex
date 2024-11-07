@@ -91,10 +91,10 @@ const TabsContainer: React.FC<TabsContainerProps> = () => {
             style={{ display: tab.active ? 'block' : 'none', width: '100%', height: '100%' }}
           >
             <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-              <div style={{ flex: '0 0 70%' }}>
+              <div style={{ flex: '0 0 65%' }}>
                 <Webview src={tab.url} id={tab.id} />
               </div>
-              <div style={{ flex: '0 0 30%', maxWidth: '500px', height: '100vh' }}>
+              <div style={{ flex: '0 0 33%', maxWidth: '500px', height: '100vh' }}>
                 <SidePanel tab={tab} />
               </div>
             </div>
