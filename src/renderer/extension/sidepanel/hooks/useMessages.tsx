@@ -108,7 +108,8 @@ export const useMessages = (): {
         description = "The OnlyFans message thread is not selected";
       }
       if (description) {
-        throw new Error(description);
+        return
+        // throw new Error(description);
       }
       const retrievedContent = (await retrieveMessageHistory(currentWebviewId)) as Message;
       console.log("retrievedContent", retrievedContent)
