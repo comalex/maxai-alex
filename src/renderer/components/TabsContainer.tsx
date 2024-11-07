@@ -1,5 +1,5 @@
 // components/TabsContainer.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabProperties } from '@sinm/react-chrome-tabs';
 import Webview from '../Webview';
 import SidePanel from '../extension/sidepanel/index';
@@ -10,15 +10,60 @@ import {
   reorderTabs,
   activateTab,
 } from '../utils/tabHelpers';
+import axios from 'axios';
+import { API_URL, X_API_KEY } from '../config';
 import { STORAGE_KEYS } from '../extension/config/constants';
 
-interface TabsContainerProps {
-  tabs: TabProperties[];
-  setTabs: React.Dispatch<React.SetStateAction<TabProperties[]>>;
-}
+interface TabsContainerProps {}
 
-const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
-  const agencyUUID = localStorage.getItem(STORAGE_KEYS.AGENCY_UUID);
+const TabsContainer: React.FC<TabsContainerProps> = () => {
+  const [tabs, setTabs] = useState<TabProperties[]>([]);
+  const [agencyUUID, setAgencyUUID] = useState(() => {
+    const storedAgencyUUID = localStorage.getItem(STORAGE_KEYS.AGENCY_UUID);
+    return storedAgencyUUID === 'undefined' ? null : storedAgencyUUID;
+  });
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === STORAGE_KEYS.AGENCY_UUID) {
+        setAgencyUUID(event.newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchTabs = async () => {
+      try {
+        const response = await axios.get(
+          `${API_URL}/api/v2/agency/${agencyUUID}/creators`,
+          {
+            headers: {
+              'X-API-KEY': X_API_KEY,
+            },
+          }
+        );
+        const fetchedTabs = response.data.map((account: { uuid: string; label: string }, index: number) => ({
+          id: account.creator_uuid,
+          url: 'https://onlyfans.com/my/chats', // Assuming a default URL for each tab
+          label: account.creator_id,
+          active: index === 0, // Make the first tab active
+        }));
+        setTabs(fetchedTabs.slice(0, 1)); // TODO remove slice
+      } catch (error) {
+        console.error('Error fetching tabs:', error);
+      }
+    };
+    if (agencyUUID) {
+      fetchTabs();
+    }
+  }, [agencyUUID]);
+
 
   if (!agencyUUID) {
     return <SidePanel tab={{id: "not_LOGINED"}} />

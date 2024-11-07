@@ -1,3 +1,5 @@
+import { API_URL as _API_URL, SOCKETS_API_URL } from "../../config";
+
 export const EXTENSION_MESSAGE_TYPES = {
   SERVICE_WORKER_FETCH: "FETCH_REQUEST",
   RETRIEVE_ONLY_FANS_MESSAGES: "retrieve-only-fans-messages",
@@ -77,8 +79,8 @@ export const STORAGE_KEYS = {
 };
 
 const PE = {
-  PLASMO_PUBLIC_CHAT_API_URL: "https://socket.pdfviewer.click",
-  PLASMO_PUBLIC_API_URL: "https://devapi.pdfviewer.click",
+  PLASMO_PUBLIC_CHAT_API_URL: SOCKETS_API_URL,
+  PLASMO_PUBLIC_API_URL: _API_URL,
   PLASMO_PUBLIC_SENTRY_DSN: "",
   PLASMO_PUBLIC_SLACK_BOT_TOKEN_PRO: "",
   PLASMO_PUBLIC_SLACK_CHANNEL_PRO: "",
