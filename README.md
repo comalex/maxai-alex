@@ -13,3 +13,9 @@ https://github.com/electron/electron/issues/7476
 
 
 codesign --deep --force --verbose --sign - node_modules/electron/dist/Electron.app
+
+
+
+yarn start
+in new window
+yarn start:electron
