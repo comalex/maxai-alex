@@ -4,7 +4,7 @@ import axios from 'axios';
 import { AuthData } from './types';
 import { API_URL, X_API_KEY } from './config';
 import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
-import { sendMessage } from "./extension/background/bus";
+import ProxyModal from './components/ProxyModal';
 
 interface WebviewProps {
   src: string;
@@ -193,6 +193,38 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
       }}>
         Save Cookies
       </button>
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          backgroundColor: 'transparent',
+        }}
+      >
+        <button
+          style={{
+            width: 'fit-content',
+            backgroundColor: 'blue',
+            color: 'white',
+            padding: '1px 10px',
+            borderRadius: '5px',
+          }}
+          onClick={() => {
+            setIsModalOpen(!isModalOpen);
+          }}
+        >
+          Proxy
+        </button>
+      </div>
+      {isModalOpen && (
+        <ProxyModal
+          // isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          creatorUUID={creatorUUID}
+          elem_id={id}
+        />
+      )}
+      {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
         src={isReadyToLoad ? src : 'https://portal.trymax.ai/spinner'}
