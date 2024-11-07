@@ -55,7 +55,8 @@
     "release": "electron-builder -p always",
     "release:prod": "yarn package && sh copy.sh",
     "release:local": "yarn package && cp -r release/build/. /Users/oleksiistupak/projects/spencer-chat/webSocket-App/maxai-be/webapp/updates/production",
-    "start:electron": "electron ."
+    "start:electron": "electron .",
+    "start:linux": "electron --no-sandbox ."
   },
   "browserslist": [
     "extends browserslist-config-erb"
