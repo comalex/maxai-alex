@@ -33,7 +33,23 @@ const Modal = ({ isOpen, onClose, children }) => {
 interface TabsContainerProps {}
 
 const TabsContainer: React.FC<TabsContainerProps> = () => {
-  const [tabs, setTabs] = useState([]);
+  const [tabs, setTabs] = useState(() => {
+    const savedTabs = localStorage.getItem('tabs');
+    return savedTabs ? JSON.parse(savedTabs) : [];
+  });
+
+  useEffect(() => {
+    const saveTabsToLocalStorage = () => {
+      localStorage.setItem('tabs', JSON.stringify(tabs));
+    };
+
+    window.addEventListener('beforeunload', saveTabsToLocalStorage);
+
+    return () => {
+      window.removeEventListener('beforeunload', saveTabsToLocalStorage);
+    };
+  }, [tabs]);
+
   const [agencyUUID, setAgencyUUID] = useState(() => {
     const storedAgencyUUID = localStorage.getItem(STORAGE_KEYS.AGENCY_UUID);
     return storedAgencyUUID === 'undefined' ? null : storedAgencyUUID;
