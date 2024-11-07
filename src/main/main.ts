@@ -79,7 +79,7 @@ const createWindow = async () => {
       sandbox: false,
     },
   });
-
+  mainWindow.setTitle('MaxAI');
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
