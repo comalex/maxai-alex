@@ -60,17 +60,18 @@ const Loader: React.FC = () => {
 };
 
 function IndexSidePanel({ tab }) {
+  const tabId = tab.id;
   const [activePage, setActivePage] = useState<PageName>(null);
-  const [currentWebviewId] = useState(tab.uuid);
-  const [isDebugMode, setDebugMode] = useStorage<boolean>(tab.uuid,
+  const [currentWebviewId] = useState(tabId);
+  const [isDebugMode, setDebugMode] = useStorage<boolean>(tabId,
     STORAGE_KEYS.DEBUG_MODE,
     false
   );
-  const [storedModel, setStoredModel] = useStorage<Model>(tab.uuid,
+  const [storedModel, setStoredModel] = useStorage<Model>(tabId,
     STORAGE_KEYS.SELECTED_MODEL
   );
 
-  const [chatter, setChatter] = useStorage<string>(tab.uuid, STORAGE_KEYS.CHATTER, null, true);
+  const [chatter, setChatter] = useStorage<string>(tabId, STORAGE_KEYS.CHATTER, null, true);
 
   const [accountIdIsLoading, setAccountIdIsLoading] = useState<boolean>(false);
   const [accountId, setAccountId] = useState<string>(null);
@@ -99,31 +100,31 @@ function IndexSidePanel({ tab }) {
 
   const [content, setContent] = useState<Message | null>(null);
 
-  const [jwtToken, setJwtToken] = useStorage<string>(tab.uuid, STORAGE_KEYS.JWT_TOKEN, null, true);
+  const [jwtToken, setJwtToken] = useStorage<string>(tabId, STORAGE_KEYS.JWT_TOKEN, null, true);
 
-  const [customVaultId, setCustomVaultId] = useStorage<string | number>(tab.uuid,
+  const [customVaultId, setCustomVaultId] = useStorage<string | number>(tabId,
     STORAGE_KEYS.CUSTOM_VAULT_ID
   );
 
-  const [customAccountName, setCustomAccountName] = useStorage<string>(tab.uuid,
+  const [customAccountName, setCustomAccountName] = useStorage<string>(tabId,
     STORAGE_KEYS.CUSTOM_ACCOUNT_NAME
   );
 
-  const [chatJwtToken, setChatJwtToken] = useStorage<string>(tab.uuid,
+  const [chatJwtToken, setChatJwtToken] = useStorage<string>(tabId,
     STORAGE_KEYS.CHAT_JWT_TOKEN,
     null,
     true,
   );
 
-  const [userUUID, setUserUUID] = useStorage<string>(tab.uuid, STORAGE_KEYS.USER_UUID, null, true);
+  const [userUUID, setUserUUID] = useStorage<string>(tabId, STORAGE_KEYS.USER_UUID, null, true);
 
-  const [voiceGenAbility, setVoiceGenAbility] = useStorage<boolean>(tab.uuid,
+  const [voiceGenAbility, setVoiceGenAbility] = useStorage<boolean>(tabId,
     STORAGE_KEYS.VOICE_GENERATION_ABILITY,
     null,
     true
   );
 
-  const [lastFanSpend, setLastFanSpend] = useStorage<number>(tab.uuid,
+  const [lastFanSpend, setLastFanSpend] = useStorage<number>(tabId,
     STORAGE_KEYS.LAST_FAN_SPEND
   );
 

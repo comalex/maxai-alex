@@ -32,7 +32,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 
 interface TabsContainerProps {}
 
-const TabsContainer: React.FC<TabsContainerProps> = () => {
+const TabsContainer: React.FC<TabsContainerProps> = ({ config }) => {
   const [tabs, setTabs] = useState(() => {
     const savedTabs = localStorage.getItem('tabs');
     return savedTabs ? JSON.parse(savedTabs) : [];
@@ -155,7 +155,7 @@ const TabsContainer: React.FC<TabsContainerProps> = () => {
           >
             <div style={{ display: 'flex', width: '100%', height: '100%' }}>
               <div style={{ flex: '0 0 65%' }}>
-                <Webview src={tab.url} id={tab.uuid} />
+                <Webview config={config} src={tab.url} id={tab.id} creatorUUID={tab.uuid} />
               </div>
               <div
                 style={{
@@ -175,7 +175,7 @@ const TabsContainer: React.FC<TabsContainerProps> = () => {
         <h2>Select Account</h2>
         <ul>
           {accounts.map((account) => (
-            <li key={account.uuid} onClick={() => handleSelectAccount(account)}>
+            <li key={account.creator_id} onClick={() => handleSelectAccount(account)}>
               {account.creator_id}
             </li>
           ))}
