@@ -149,7 +149,8 @@ const Chat: React.FC<ChatProps> = ({ chatJwtToken }) => {
     expandSimulateBlock,
     setExpandSimulateBlock,
     autoGenerateResponseState,
-    voiceGenAbility
+    voiceGenAbility,
+    currentWebviewId,
   } = useGlobal();
   const { isPermitted } = useIsPermitted();
 
@@ -606,7 +607,9 @@ const Chat: React.FC<ChatProps> = ({ chatJwtToken }) => {
     //   "generateResponseId:",
     //   generateResponseId
     // );
-
+    console.log("msgGenerateResponseId currentWebviewId", currentWebviewId)
+    console.log("msgGenerateResponseId", msgGenerateResponseId)
+    console.log("msgGenerateResponseId message?.payload", message?.payload)
     if (msgGenerateResponseId) {
       if (stopGenerationState) {
         logger.debug("Stop and ignore old generation");
@@ -1298,6 +1301,9 @@ const Chat: React.FC<ChatProps> = ({ chatJwtToken }) => {
       if (generateResponseIdRef) {
         generateResponseIdRef.current = generateResponseId;
       }
+
+      console.log("msgGenerateResponseId currentWebviewId", currentWebviewId)
+      console.log("msgGenerateResponseId", generateResponseId)
 
       const msg = {
         type: EXTENSION_MESSAGE_TYPES.SEND_MESSAGE_HISTORY,

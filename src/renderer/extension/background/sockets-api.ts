@@ -11,20 +11,52 @@ import {
   type ExtensionMessage,
   type OnlyFansMessage
 } from "../config/types";
+import { EXT_VERSION } from "../sidepanel/Login";
+
+// import { EXT_VERSION } from "~sidepanel/Login";
 
 const _sendMessage = (props) => {
   __sendMessage({ ...props, socketApi: true });
 };
 
+const META = {
+  EXT_VERSION
+};
+
+
 const sendMessage = (...args) => {
-  console.log("send", ...args);
-  socket?.emit(...args);
+  try {
+    args[1] = { ...args[1], ...META };
+  } catch (error) {
+    console.error("Error extending args[0] with META:", error);
+  }
+
+  if (!socket || !socket.connected) {
+    socketInit(args[1].chat_jwt_token, () => {
+      console.log("send", ...args);
+      socket.emit(...args);
+    });
+  } else {
+    console.log("send", ...args);
+    socket.emit(...args);
+  }
 };
 
 let socket;
-let socketInit = (chatJwtToken: string) => {
-  console.log("socketInit start sockets", CHAT_API_URL);
-  socket = io(CHAT_API_URL, { autoConnect: false, transports: ["websocket"] });
+let socketInit = (chatJwtToken: string, callback) => {
+  if (socket && socket.connected) {
+    console.log("Connected, no need to reconect");
+    return;
+  }
+  try {
+    if (socket) {
+      socket.close();
+    }
+  } catch (error) {
+    console.error("Error closing old socket:", error);
+  }
+  console.log("socketInit start", CHAT_API_URL);
+  socket = io(CHAT_API_URL, { autoConnect: true, transports: ["websocket"] });
 
   socket?.on("connect_error", (error) => {
     console.log("Connection Error:", error);
@@ -42,6 +74,9 @@ let socketInit = (chatJwtToken: string) => {
     });
     const command = "disablevoice";
     // sendMessage({ content: `/${command}`, chatId: null });
+    if (callback) {
+      callback();
+    }
   });
 
   socket?.on("free_trial_response", (data) => {
@@ -103,7 +138,7 @@ let socketInit = (chatJwtToken: string) => {
       type: EXTENSION_MESSAGE_TYPES.GENERATE_AUDIO,
       payload: {
         type: ExtensionMessageTypes.IMAGE_RESPONSE,
-        file_url: data.file_url
+        file_url: data?.file_url
       }
     });
   });
@@ -131,11 +166,11 @@ let socketInit = (chatJwtToken: string) => {
 
   socket?.on(SOCKET_MESSAGE.MESSAGE_RESPONSE, (message: any) => {
     console.log("message_response", message);
-    const { msg, messageUuid } = message;
+    const { msg, messageUuid, generateResponseId } = message;
     if (msg) {
-      _sendMessage({
+        _sendMessage({
         type: EXTENSION_MESSAGE_TYPES.SUGGESTED_MESSAGE_TEXT,
-        payload: { messageText: msg, messageUuid }
+        payload: { messageText: msg, messageUuid, generateResponseId }
       });
     }
   });
@@ -155,11 +190,9 @@ const sendMessageHistoryToServer = (
   user_id: string,
   messages: OnlyFansMessage[],
   lastUserMessage: string,
-  accountUUID: string
+  accountUUID: string,
+  msgGenerateResponseId: string
 ) => {
-  if (!socket) {
-    socketInit(jwt);
-  }
   const msg = {
     text: lastUserMessage,
     // text: "How about a video of you in that outfit? Something really kinky and daring, just for me to enjoy",
@@ -174,7 +207,8 @@ const sendMessageHistoryToServer = (
     accountUUID,
     is_extension: true,
     username,
-    user_id
+    user_id,
+    msgGenerateResponseId
   };
   console.log("sendMessageHistoryToServer", msg);
   sendMessage(SOCKET_MESSAGE.NEW_MESSAGE, msg);
@@ -190,16 +224,13 @@ export interface GenerateAudioParams {
 }
 
 const generateAudio = ({
-                         accountUUID,
-                         jwt,
-                         model,
-                         username,
-                         user_id,
-                         text
-                       }: GenerateAudioParams) => {
-  if (!socket) {
-    socketInit(jwt);
-  }
+  accountUUID,
+  jwt,
+  model,
+  username,
+  user_id,
+  text
+}: GenerateAudioParams) => {
   const msg = {
     text: text,
     accountUUID,
@@ -216,8 +247,14 @@ const generateAudio = ({
     username,
     user_id
   };
+
+  // const command = "disablevoice";
+  // sendMessage({ content: `/${command}`, chatId: null });
+
   console.log("generateAudio", msg);
+  // sendMessage({ content: `/${SOCKET_MESSAGE.NEW_MESSAGE}`, chatId: null });
   sendMessage(SOCKET_MESSAGE.NEW_MESSAGE, msg);
+  // sendMessage(SOCKET_MESSAGE.NEW_MESSAGE, msg);
 };
 
 onMessage.addListener(
@@ -237,7 +274,8 @@ onMessage.addListener(
             jwt,
             model,
             username,
-            user_id
+            user_id,
+            generateResponseId
           }
         } = message;
         sendResponse({ status: "Message received" });
@@ -248,7 +286,8 @@ onMessage.addListener(
           user_id,
           messages,
           lastUserMessage,
-          accountUUID
+          accountUUID,
+          generateResponseId
         );
         break;
       }
