@@ -69,7 +69,6 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
     getCreatorSettings();
   }, []);
 
-  console.log('2222', { proxyList, selectedProxy, creatorSettings });
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -141,6 +140,10 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
         })
         .catch((error) => {
           console.error('Error during account update:', error);
+        })
+        .finally(() => {
+          setLoadingSettings(false);
+          onClose();
         });
     } else {
       console.error('No proxy selected');
