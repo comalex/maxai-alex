@@ -1,6 +1,5 @@
 import { WebviewTag } from 'electron';
-import { TbChevronCompactLeft } from 'react-icons/tb';
-import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
+import { API_URL, EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
 
 export const getWebviewHTML = async (
   webviewId: string,
@@ -86,28 +85,31 @@ export const injectBlurScript = (webview: WebviewTag, blurLevel: number) => {
   );
 };
 
-
 export const addListenerOnClicks = (webview) => {
-        return executeJavaScriptWithCatch(webview, `
+  return executeJavaScriptWithCatch(
+    webview,
+    `
         if (!window.listenerAdded) {
           document.addEventListener('click', (event) => {
             window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
           });
           window.listenerAdded = true;
         }
-      `);
-}
+      `,
+  );
+};
 
-
-export const saveCookies = (webview, creatorUUID) => {
-  executeJavaScriptWithCatch(webview, `
+export const autoSaveCookies = (webview, partitionId, creatorUUID) => {
+  executeJavaScriptWithCatch(
+    webview,
+    `
         if (!window.bht) {
           const waitForHeader = () => {
             const headerElement = document.querySelector('.l-header');
             if (headerElement) {
               const bcTokenSha = localStorage.getItem("bcTokenSha");
               if (bcTokenSha) {
-                window.electron.ipcRenderer.sendMessage('read-data', ['${creatorUUID}', bcTokenSha]);
+                window.electron.ipcRenderer.sendMessage('read-data', ['${partitionId}', '${creatorUUID}', bcTokenSha]);
               } else {
                 console.error('bcTokenSha is null');
               }
@@ -119,5 +121,48 @@ export const saveCookies = (webview, creatorUUID) => {
           waitForHeader();
           window.bht = true;
         }
-      `);
-}
+      `,
+  );
+};
+
+export const getMyIp = (webview: any) => {
+  if (webview) {
+    executeJavaScriptWithCatch(
+      webview,
+      `fetch('${API_URL}/v1/api/get-my-ip')
+        .then((response: Response) => response.json())
+        .then((data: { ip: string }) => alert('Your IP is: ' + data.ip))
+        .catch((error: any) => console.error('Error fetching IP:', error));`,
+    ).catch((error: any) =>
+      console.error('Error executing JavaScript in webview:', error),
+    );
+  } else {
+    console.error('Webview element not found');
+  }
+};
+
+export const saveCookies = (
+  webview: any,
+  partitionId: string,
+  creatorUUID: string,
+) => {
+  if (webview) {
+    executeJavaScriptWithCatch(webview, 'localStorage.getItem("bcTokenSha");')
+      .then((bcTokenSha: string | null) => {
+        if (bcTokenSha) {
+          window.electron.ipcRenderer.sendMessage('read-data', [
+            partitionId,
+            creatorUUID,
+            bcTokenSha,
+          ]);
+        } else {
+          console.error('bcTokenSha is null');
+        }
+      })
+      .catch((error: any) => {
+        console.error('Error executing JavaScript in webview:', error);
+      });
+  } else {
+    console.error('Webview element not found');
+  }
+};
