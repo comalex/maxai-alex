@@ -10,6 +10,7 @@ import {
   reorderTabs,
   activateTab,
 } from '../utils/tabHelpers';
+import { STORAGE_KEYS } from '../extension/config/constants';
 
 interface TabsContainerProps {
   tabs: TabProperties[];
@@ -17,6 +18,12 @@ interface TabsContainerProps {
 }
 
 const TabsContainer: React.FC<TabsContainerProps> = ({ tabs, setTabs }) => {
+  const agencyUUID = localStorage.getItem(STORAGE_KEYS.AGENCY_UUID);
+
+  if (!agencyUUID) {
+    return <SidePanel tab={{id: "not_LOGINED"}} />
+  }
+
   return (
     <>
       <Tabs

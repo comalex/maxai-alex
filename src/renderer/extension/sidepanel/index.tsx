@@ -424,6 +424,7 @@ function IndexSidePanel({ tab }) {
     setUserUUID("");
     setChatJwtToken("");
     setCustomVaultId("");
+    localStorage.removeItem(STORAGE_KEYS.AGENCY_UUID);
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
@@ -431,6 +432,7 @@ function IndexSidePanel({ tab }) {
       duration: 1000,
       isClosable: true
     });
+    refreshOfPage(currentWebviewId);
   };
 
   let component;
