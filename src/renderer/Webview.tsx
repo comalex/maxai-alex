@@ -96,7 +96,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   useEffect(() => {
     const webview = document.getElementById(id) as any;
-    if (webview && authData && authData.app_settings.bcTokenSha) {
+    if (webview && authData && authData?.app_settings?.bcTokenSha) {
       const handleDomReady = () => {
         setIsWebViewReady(true);
         handleWebviewLoad(authData);
