@@ -127,15 +127,11 @@ export const autoSaveCookies = (webview, partitionId, creatorUUID) => {
 
 export const getMyIp = (webview: any) => {
   if (webview) {
-    executeJavaScriptWithCatch(
-      webview,
-      `fetch('${API_URL}/v1/api/get-my-ip')
-        .then((response: Response) => response.json())
-        .then((data: { ip: string }) => alert('Your IP is: ' + data.ip))
-        .catch((error: any) => console.error('Error fetching IP:', error));`,
-    ).catch((error: any) =>
-      console.error('Error executing JavaScript in webview:', error),
-    );
+    executeJavaScriptWithCatch(webview, `fetch('${API_URL}/v1/api/get-my-ip')
+        .then(response => response.json())
+        .then(data => alert('Your IP is: ' + data.ip))
+        .catch(error => console.error('Error fetching IP:', error));`)
+        .catch(error => console.error('Error executing JavaScript in webview:', error));
   } else {
     console.error('Webview element not found');
   }

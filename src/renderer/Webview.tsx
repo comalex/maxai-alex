@@ -10,6 +10,7 @@ import {
   saveCookies,
   autoSaveCookies,
   injectBlurScript,
+  getMyIp,
 } from './utils';
 
 interface WebviewProps {
