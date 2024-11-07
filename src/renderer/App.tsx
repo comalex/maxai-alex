@@ -5,7 +5,7 @@ import '@sinm/react-chrome-tabs/css/chrome-tabs.css';
 import '@sinm/react-chrome-tabs/css/chrome-tabs-dark-theme.css';
 import { TabProperties } from '@sinm/react-chrome-tabs';
 import axios from 'axios';
-import { API_URL } from './config';
+import { API_URL, X_API_KEY, AGENCY_UUID } from './config';
 
 export default function App() {
   const [tabs, setTabs] = useState<TabProperties[]>([]);
@@ -13,17 +13,21 @@ export default function App() {
   useEffect(() => {
     const fetchTabs = async () => {
       try {
-        // const response = await axios.get('http://127.0.0.1:8000/api/v2/accounts');
-
-        const response = await axios.get(`${API_URL}/api/v2/accounts`);
+        const response = await axios.get(
+          `${API_URL}/api/v2/agency/${AGENCY_UUID}/creators`,
+          {
+            headers: {
+              'X-API-KEY': X_API_KEY,
+            },
+          }
+        );
         const fetchedTabs = response.data.map((account: { uuid: string; label: string }, index: number) => ({
-          id: account.uuid,
-          // url: 'https://dev-api.trymax.ai/v1/api/get-my-ip', // Assuming a default URL for each tab
+          id: account.creator_uuid,
           url: 'https://onlyfans.com/my/chats/chat/196992987/', // Assuming a default URL for each tab
-          label: account.label,
+          label: account.creator_id,
           active: index === 0, // Make the first tab active
         }));
-        setTabs(fetchedTabs);
+        setTabs(fetchedTabs.slice(0, 1));
       } catch (error) {
         console.error('Error fetching tabs:', error);
       }

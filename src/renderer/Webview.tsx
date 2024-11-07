@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { AuthData } from './types';
-import { API_URL } from './config';
+import { API_URL, X_API_KEY } from './config';
 import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
 import { sendMessage } from "./extension/background/bus";
 
@@ -11,14 +11,15 @@ interface WebviewProps {
   id: string;
 }
 
-
 const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const [config, setConfig] = useState('');
   const [dataFetched, setDataFetched] = useState(false);
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
+  const [blurLevel, setBlurLevel] = useState(10);
   const partitionId = `persist:${id}`;
+  const creatorUUID = id;
   console.log("Data fetched:", dataFetched, "IPC response received:", ipcResponseReceived);
   const isReadyToLoad = dataFetched && ipcResponseReceived;
 
@@ -46,8 +47,11 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const response = await axios.get(`http://127.0.0.1:8000/api/v2/app/${id}`);
-        const response = await axios.get(`${API_URL}/api/v2/app/${id}`);
+        const response = await axios.get(`${API_URL}/api/v2/creator/${creatorUUID}/settings`, {
+          headers: {
+            'X-API-KEY': `${X_API_KEY}`
+          }
+        });
         setAuthData(response.data);
         console.log(response.data);
         setDataFetched(true);
@@ -57,7 +61,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
     };
 
     fetchData();
-  }, [id]);
+  }, [creatorUUID]);
 
   useEffect(() => {
     const handleIpcResponse = (arg: any) => {
@@ -92,7 +96,7 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
 
   useEffect(() => {
     const webview = document.getElementById(id) as any;
-    if (webview && authData && authData.auth.bcTokenSha) {
+    if (webview && authData && authData.app_settings.bcTokenSha) {
       const handleDomReady = () => {
         setIsWebViewReady(true);
         handleWebviewLoad(authData);
@@ -107,29 +111,75 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
   const handleWebviewLoad = (auth: AuthData) => {
     const webview = document.getElementById(id) as any;
     if (webview) {
-      // console.log("set localsotre");
-      webview.executeJavaScript(`
-        localStorage.setItem('bcTokenSha', '${auth.auth.bcTokenSha}');
-      `);
-      // Inject a button into the webview and send an event on click
-
-      window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
+      if (auth?.app_settings?.bcTokenSha) {
+        webview.executeJavaScript(`
+          localStorage.setItem('bcTokenSha', '${auth?.app_settings?.bcTokenSha}');
+        `);
+        window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
+      } else {
+        setIpcResponseReceived(true);
+      }
     } else {
       console.error('Webview element not found or bcTokenSha not set');
     }
+    // if (webview) {
+    //   window.electron.ipcRenderer.sendMessage('ipc-example', [partitionId, auth]);
+    // }
   };
+
+  const injectBlurScript = () => {
+    const webview = document.getElementById(id) as any;
+    if (webview) {
+      webview.executeJavaScript(`
+        function blurImage(image) {
+          image.style.filter = "blur(${blurLevel}px)";
+        }
+
+        document.querySelectorAll("img").forEach(blurImage);
+
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.tagName === "IMG") {
+                blurImage(node);
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                node.querySelectorAll("img").forEach(blurImage);
+              }
+            });
+          });
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      `);
+    }
+  };
+
   if (!config.path) {
-    return;
+    return null;
   }
+
   return (
     <div>
+      {/* <input
+        type="range"
+        min="0"
+        max="20"
+        value={blurLevel}
+        onChange={(e) => setBlurLevel(Number(e.target.value))}
+      /> */}
+      <button onClick={injectBlurScript}>
+        Blur Images
+      </button>
       <button onClick={() => {
         const webview = document.getElementById(id) as HTMLWebViewElement | null;
         if (webview) {
           webview.executeJavaScript('localStorage.getItem("bcTokenSha");', false)
             .then((bcTokenSha: string | null) => {
               if (bcTokenSha) {
-                window.electron.ipcRenderer.sendMessage('read-data', [partitionId, bcTokenSha]);
+                window.electron.ipcRenderer.sendMessage('read-data', [creatorUUID, bcTokenSha]);
               } else {
                 console.error('bcTokenSha is null');
               }
@@ -141,13 +191,11 @@ const Webview: React.FC<WebviewProps> = ({ src, id }) => {
           console.error('Webview element not found');
         }
       }}>
-        Read Data
+        Save Cookies
       </button>
-      {/* <button onClick={() => handleWebviewLoad(authData)}>Load Webview</button> */}
       <webview
         id={id}
         src={isReadyToLoad ? src : 'https://portal.trymax.ai/spinner'}
-        // src={src}
         className="webview-content"
         partition={partitionId}
         useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"

@@ -7,7 +7,7 @@ import https from 'https';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { AuthData } from './types';
-import { API_URL } from '../renderer/config';
+import { API_URL, X_API_KEY } from '../renderer/config';
 
 // const remoteMain = require('@electron/remote/main');
 // const Sentry = require('@sentry/node');
@@ -132,8 +132,9 @@ ipcMain.on('ipc-inject', async (event, [type]) => {
 ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) => {
   console.log(`Received message on channel 'ipc-example':`);
   console.log('Persist ID:', persistId);
-  const { proxy, auth } = data;
-  console.log('Auth Data:', data);
+  const { proxy, app_settings } = data;
+  const auth = app_settings.cookies;
+  console.log('Auth Data:', auth);
   const session = require('electron').session.fromPartition(persistId);
   // console.log('session', session);
 
@@ -176,13 +177,13 @@ ipcMain.on('ipc-example', async (event, [persistId, data]: [string, AuthData]) =
       httpOnly: true,
       secure: true,
     },
-    {
-      url: 'https://onlyfans.com',
-      name: 'test',
-      value: persistId,
-      httpOnly: true,
-      secure: true,
-    },
+    // {
+    //   url: 'https://onlyfans.com',
+    //   name: 'test',
+    //   value: persistId,
+    //   httpOnly: true,
+    //   secure: true,
+    // },
   ];
 
   let cookiesStatus = 'Cookies set successfully';
@@ -250,15 +251,15 @@ ipcMain.on('ondragstart', (event, filePath) => {
 })
 
 
-ipcMain.on('read-data', async (event, [persistId, bcTokenSha]) => {
+ipcMain.on('read-data', async (event, [creatorUuid, bcTokenSha]) => {
   try {
-    console.log(`Received request to read cookies and send to API for persistId: ${persistId} and bcTokenSha: ${bcTokenSha}`);
+    console.log(`Received request to read cookies and send to API for persistId: ${creatorUuid} and bcTokenSha: ${bcTokenSha}`);
     const url = 'https://onlyfans.com';
-    const cookieNames = ['sess', '_cfuvid', 'auth_id', 'test'];
+    const cookieNames = ['sess', '_cfuvid', 'auth_id'];
 
     // Retrieve cookies for the specified URL
     console.log(`Retrieving cookies for URL: ${url}`);
-    const cookies = await require('electron').session.fromPartition(persistId).cookies.get({ url });
+    const cookies = await require('electron').session.fromPartition(`persist:${creatorUuid}`).cookies.get({ url });
     console.log(`Retrieved cookies: ${JSON.stringify(cookies)}`);
 
     // Filter the cookies to only include the ones you need
@@ -274,17 +275,19 @@ ipcMain.on('read-data', async (event, [persistId, bcTokenSha]) => {
 
     // Prepare payload for the API
     const payload = {
-      bcTokenSha,
-      cookies: cookieData,
+      app_settings: {
+        bcTokenSha,
+        cookies: cookieData,
+      },
     };
     console.log(`Payload prepared for API: ${JSON.stringify(payload)}`);
 
     // Send the payload to your API endpoint
-    console.log(`Sending payload to API at ${API_URL}/api/v2/accounts`);
-    const response = await fetch(`${API_URL}/api/v2/accounts`, {
-      method: 'POST',
+    const response = await fetch(`${API_URL}/api/v2/creator/${creatorUuid}/settings`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-KEY': `${X_API_KEY}`,
       },
       body: JSON.stringify(payload),
     });
