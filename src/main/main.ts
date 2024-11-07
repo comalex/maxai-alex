@@ -305,6 +305,53 @@ ipcMain.on('read-data', async (event, [creatorUuid, bcTokenSha]) => {
   }
 });
 
+ipcMain.on(
+  'save-proxy',
+  async (
+    event,
+    [
+      creatorUuid,
+      bcTokenSha,
+      proxyType,
+      proxyHost,
+      proxyPort,
+      proxyUsername,
+      proxyPassword,
+    ],
+  ) => {
+    try {
+      const payload = {
+        bcTokenSha,
+        of_account_uuid: creatorUuid,
+        type: proxyType,
+        host: proxyHost,
+        port: proxyPort,
+        username: proxyUsername,
+        password: proxyPassword,
+      };
+      const response = await fetch(`${API_URL}/api/v2/proxy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-KEY': `${X_API_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log('Response:', response);
+
+      if (!response.ok) {
+        console.error('Failed to send cookies to API');
+        throw new Error('Failed to send cookies to API');
+      }
+      const result = await response.json();
+      console.log('Data sent successfully:', result);
+      event.reply('read-cookies-and-send-to-api-response', result);
+    } catch (error) {
+      console.error('Error reading cookies or sending to API:', error);
+      event.reply('read-cookies-and-send-to-api-error', error.message);
+    }
+  },
+);
 
 ipcMain.handle('get-config', () => {
   return {
