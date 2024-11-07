@@ -65,9 +65,10 @@ import VoicePage from "./VoicePage";
 import Debug from "./components/Debug";
 import MaintenanceMessage from "./components/Maintenance/MaintenanceMessage";
 import { useIsPermitted } from "./hooks/useIsPermitted";
+import { webviewReload } from "./utils";
 
 const UrlCheckWrapper = ({ regex, text, children }) => {
-  const { currentUrl } = useGlobal();
+  const { currentUrl, currentWebviewId } = useGlobal();
 
   const isValidCheck = useMemo(
     () => !currentUrl || isValidPage(regex, currentUrl),
@@ -81,7 +82,7 @@ const UrlCheckWrapper = ({ regex, text, children }) => {
           <Text fontSize="xl" fontWeight="bold">
             {text}
           </Text>
-          <Button onClick={() => window.location.reload()}>Force reload</Button>
+          <Button onClick={() => webviewReload(currentWebviewId)}>Force reload</Button>
         </VStack>
       </Center>
     );

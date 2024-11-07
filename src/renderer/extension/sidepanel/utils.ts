@@ -516,3 +516,13 @@ export const getTimezoneInfo = () => {
     options
   };
 };
+
+
+export const webviewReload = (webviewId: string) => {
+  const webview = document.getElementById(webviewId) as any;
+  if (webview && typeof webview.reload === 'function') {
+    webview.reload();
+  } else {
+    console.error('Webview not found or reload method is not available');
+  }
+};

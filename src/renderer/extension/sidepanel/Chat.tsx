@@ -106,7 +106,8 @@ import {
   aggregateUserContentWithTags,
   convertHistoryToString,
   mergeInformationMarkers,
-  replaceInfluencerNameInString
+  replaceInfluencerNameInString,
+  webviewReload
 } from "./utils";
 
 const replacePlaceholdersWithPrices = (
@@ -1622,7 +1623,9 @@ const Chat: React.FC<ChatProps> = ({ chatJwtToken }) => {
           To start using MaxAI, please select a model in the Agency Portal, and
           then force reload
         </Text>
-        <Button onClick={() => window.location.reload()}>Force reload</Button>
+        <Button onClick={() => {
+          webviewReload(currentWebviewId);
+        }}>Force reload</Button>
         {/* <ModelSelect /> */}
       </>
     );
