@@ -5,6 +5,7 @@ import { API_URL, X_API_KEY } from './config';
 import { EXTENSION_MESSAGE_TYPES } from './extension/config/constants';
 import { sendMessage } from './extension/background/bus';
 import ProxyModal from './components/ProxyModal';
+import { addListenerOnClicks, executeJavaScriptWithCatch, injectBlurScript, saveCookies } from './utils';
 
 interface WebviewProps {
   src: string;
@@ -90,13 +91,7 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
     };
   }, [authData, creatorUUID, partitionId]);
 
-  const executeJavaScriptWithCatch = (webview: any, script: string) => {
-    try {
-      return webview.executeJavaScript(script);
-    } catch (error) {
-      console.error('Error executing JavaScript in webview:', error);
-    }
-  };
+
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -112,9 +107,8 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
     const handleIpcResponse = (arg: any) => {
       console.log('handleIpcResponse', arg);
       setIpcResponseReceived(true);
-      const webview = webviewRef.current;
       if (!localStorage.getItem(`reloaded_${id}`)) {
-        webview.reload();
+        webviewRef?.current.reload();
         localStorage.setItem(`reloaded_${id}`, 'true');
       }
     };
@@ -131,42 +125,14 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
   }, []);
 
   useEffect(() => {
-    const webview = document.getElementById(id) as any;
     if (isWebViewReady) {
-      executeJavaScriptWithCatch(webview, `
-        if (!window.listenerAdded) {
-          document.addEventListener('click', (event) => {
-            window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}"]);
-          });
-          window.listenerAdded = true;
-        }
-      `);
-
-      executeJavaScriptWithCatch(webview, `
-        if (!window.bht) {
-          const waitForHeader = () => {
-            const headerElement = document.querySelector('.l-header');
-            if (headerElement) {
-              const bcTokenSha = localStorage.getItem("bcTokenSha");
-              if (bcTokenSha) {
-                window.electron.ipcRenderer.sendMessage('read-data', ['${creatorUUID}', bcTokenSha]);
-              } else {
-                console.error('bcTokenSha is null');
-              }
-            } else {
-              setTimeout(waitForHeader, 1000);
-            }
-          };
-
-          waitForHeader();
-          window.bht = true;
-        }
-      `);
+      addListenerOnClicks(webviewRef?.current);
+      saveCookies(webviewRef?.current, creatorUUID);
     }
   }, [isReadyToLoad, isWebViewReady]);
 
   useEffect(() => {
-    const webview = document.getElementById(id) as any;
+    const webview = webviewRef?.current;
     if (webview && authData && authData?.app_settings?.bcTokenSha) {
       const handleDomReady = () => {
         setIsWebViewReady(true);
@@ -225,39 +191,12 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
     }
   };
 
-  const injectBlurScript = () => {
-    const webview = document.getElementById(id) as any;
-    if (webview) {
-      executeJavaScriptWithCatch(webview, `
-        function blurImage(image) {
-          image.style.filter = "blur(${blurLevel}px)";
-        }
-
-        document.querySelectorAll("img").forEach(blurImage);
-
-        const observer = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-              if (node.tagName === "IMG") {
-                blurImage(node);
-              } else if (node.nodeType === Node.ELEMENT_NODE) {
-                node.querySelectorAll("img").forEach(blurImage);
-              }
-            });
-          });
-        });
-
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-        });
-      `);
-    }
-  };
-
   return (
     <div>
-      <button className="btn" onClick={injectBlurScript}>
+      <button
+        className="btn"
+        onClick={() => injectBlurScript(webviewRef?.current, blurLevel)}
+      >
         Blur Images
       </button>
       <button className="btn" onClick={getCookies}>
