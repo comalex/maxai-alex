@@ -64,7 +64,6 @@ if (isDebug) {
 }
 
 const createWindow = async () => {
-
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
@@ -114,7 +113,10 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
     if (proxy) {
       callback(proxy.username, proxy.password);
     } else {
-      console.warn('Proxy authentication required but no proxy found for host:', authInfo.host);
+      console.warn(
+        'Proxy authentication required but no proxy found for host:',
+        authInfo.host,
+      );
     }
   } else {
     // Handle other authentication scenarios if needed
@@ -129,138 +131,139 @@ ipcMain.on('ipc-inject', async (event, [type]) => {
   mainWindow.webContents.send('ipc-inject-response', type);
 });
 
-ipcMain.on('authSync', async (event, [partitionId, creatorUUID, data]: [string, AuthData]) => {
-  console.log(`Received message on channel 'authSync':`);
-  console.log('Persist ID:', partitionId);
-  const { proxy, app_settings } = data;
-  const auth = app_settings.cookies;
-  console.log('Auth Data:', auth);
-  console.log('Proxy:', proxy);
-  const session = require('electron').session.fromPartition(partitionId);
-  // console.log('session', session);
-  let proxyStatus = 'No proxy information provided in auth data';
-  if (proxy && proxy.host) {
-    const { host, port, type } = proxy;
-    const proxyRules = type ? `${type}=${host}:${port}` : `http=${host}:${port};https=${host}:${port};socks5=${host}:${port}`;
-    PROXIES[host] = { type, host, port, username: proxy.username, password: proxy.password }; // Add proxy to PROXIES
-    console.log("proxyRules", proxyRules)
-    try {
-      await session.setProxy({ proxyRules });
-      console.log('Proxy set successfully');
-      proxyStatus = 'Proxy set successfully';
-    } catch (error) {
-      console.error('Error setting proxy:', error);
-      proxyStatus = 'Error setting proxy';
-    }
-  } else {
-    console.warn(proxyStatus);
-  }
-
-  const cookies = [
-    {
-      url: 'https://onlyfans.com',
-      name: 'sess',
-      value: auth.sess,
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: '_cfuvid',
-      value: auth._cfuvid,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'no_restriction',
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: 'auth_id',
-      value: auth.auth_id,
-      httpOnly: true,
-      secure: true,
-    },
-    {
-      url: 'https://onlyfans.com',
-      name: 'cookiesAccepted',
-      value: 'all',
-      httpOnly: false,
-      secure: false,
-    },
-  ];
-
-  let cookiesStatus = 'Cookies set successfully';
-  try {
-    const allCookies = await session.cookies.get({});
-    // console.log('All cookies:', allCookies);
-    await Promise.all(cookies.map(async (cookie) => {
+ipcMain.on(
+  'authSync',
+  async (event, [partitionId, creatorUUID, data]: [string, AuthData]) => {
+    console.log(`Received message on channel 'authSync':`);
+    console.log('Persist ID:', partitionId);
+    const { proxy, app_settings } = data;
+    const auth = app_settings.cookies;
+    console.log('Auth Data:', auth);
+    console.log('Proxy:', proxy);
+    const session = require('electron').session.fromPartition(partitionId);
+    let proxyStatus = 'No proxy information provided in auth data';
+    if (proxy && proxy.host) {
+      const { host, port, type } = proxy;
+      const proxyRules = type
+        ? `${type}=${host}:${port}`
+        : `http=${host}:${port};https=${host}:${port};socks5=${host}:${port}`;
+      PROXIES[host] = {
+        type,
+        host,
+        port,
+        username: proxy.username,
+        password: proxy.password,
+      }; // Add proxy to PROXIES
+      console.log('proxyRules', proxyRules);
       try {
-        await Promise.all(allCookies.map(async (cookie) => {
-        try {
-          await session.cookies.remove(cookie.domain, cookie.name);
-          // console.log(`Removed cookie: ${cookie.name}`);
-        } catch (error) {
-          console.error(`Failed to remove cookie: ${cookie.name}`, error);
-        }
-      }));
-
-        // const cookieToRemove = allCookies.find(c => c.name === '_cfuvid' && c.domain === '.onlyfans.com');
-        // if (cookieToRemove) {
-        //   const removeSuccess = await session.cookies.remove(cookieToRemove.url, cookieToRemove.name);
-        //   if (removeSuccess) {
-        //     console.log(`Cookie ${cookieToRemove.name} removed successfully`);
-        //   } else {
-        //     console.warn(`Failed to remove cookie ${cookieToRemove.name}`);
-        //   }
-        // }
-        // const removeSuccess = await session.cookies.remove(cookie.url, cookie.name);
-        // if (removeSuccess) {
-        //   console.log(`Cookie ${cookie.name} removed successfully`);
-        // } else {
-        //   console.warn(`Failed to remove cookie ${cookie.name}`);
-        // }
-
+        await session.setProxy({ proxyRules });
+        console.log('Proxy set successfully');
+        proxyStatus = 'Proxy set successfully';
       } catch (error) {
-        console.error(`Error setting cookie ${cookie.name}:`, error);
+        console.error('Error setting proxy:', error);
+        proxyStatus = 'Error setting proxy';
       }
-      await session.cookies.set(cookie);
-      console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`);
-    }));
-    // cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
-  } catch (error) {
-    console.error('Error setting cookies:', error);
-    cookiesStatus = 'Error setting cookies';
-  }
-  console.log("Cookies set");
+    } else {
+      console.warn(proxyStatus);
+    }
 
-  const result = {
-    partitionId,
-    proxyStatus,
-    cookiesStatus,
-  };
+    const cookies = [
+      {
+        url: 'https://onlyfans.com',
+        name: 'sess',
+        value: auth.sess,
+        httpOnly: true,
+        secure: true,
+      },
+      {
+        url: 'https://onlyfans.com',
+        name: '_cfuvid',
+        value: auth._cfuvid,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'no_restriction',
+      },
+      {
+        url: 'https://onlyfans.com',
+        name: 'auth_id',
+        value: auth.auth_id,
+        httpOnly: true,
+        secure: true,
+      },
+      {
+        url: 'https://onlyfans.com',
+        name: 'cookiesAccepted',
+        value: 'all',
+        httpOnly: false,
+        secure: false,
+      },
+    ];
 
-  event.reply('authSync-response', result);
-  return result;
-});
+    let cookiesStatus = 'Cookies set successfully';
+    try {
+      const allCookies = await session.cookies.get({});
+      // console.log('All cookies:', allCookies);
+      await Promise.all(
+        cookies.map(async (cookie) => {
+          try {
+            await Promise.all(
+              allCookies.map(async (cookie) => {
+                try {
+                  await session.cookies.remove(cookie.domain, cookie.name);
+                  console.log(
+                    `Removed cookie: ${cookie.domain} ${cookie.name}`,
+                  );
+                } catch (error) {
+                  console.error(
+                    `Failed to remove cookie: ${cookie.name}`,
+                    error,
+                  );
+                }
+              }),
+            );
+          } catch (error) {
+            console.error(`Error setting cookie ${cookie.name}:`, error);
+          }
+          await session.cookies.set(cookie);
+          console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`);
+        }),
+      );
+      // cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
+    } catch (error) {
+      console.error('Error setting cookies:', error);
+      cookiesStatus = 'Error setting cookies';
+    }
+    console.log('Cookies set');
 
+    const result = {
+      partitionId,
+      proxyStatus,
+      cookiesStatus,
+    };
 
-
+    event.reply('authSync-response', result);
+    return result;
+  },
+);
 
 // Function to download a file and save it temporarily
 function downloadFile(url, callback) {
   const tempFilePath = path.join(app.getPath('temp'), path.basename(url));
 
   const file = fs.createWriteStream(tempFilePath);
-  https.get(url, (response) => {
-    response.pipe(file);
-    file.on('finish', () => {
-      file.close();
-      callback(tempFilePath);
+  https
+    .get(url, (response) => {
+      response.pipe(file);
+      file.on('finish', () => {
+        file.close();
+        callback(tempFilePath);
+      });
+    })
+    .on('error', (err) => {
+      fs.unlink(tempFilePath);
+      console.error('Error downloading file:', err);
+      dialog.showErrorBox('Download Error', 'Could not download the file.');
     });
-  }).on('error', (err) => {
-    fs.unlink(tempFilePath);
-    console.error('Error downloading file:', err);
-    dialog.showErrorBox('Download Error', 'Could not download the file.');
-  });
 }
 
 // Handle download request from renderer process
@@ -280,67 +283,80 @@ ipcMain.on('ondragstart', (event, filePath) => {
     event.sender.startDrag({
       // file: path.join(__dirname, filePath),
       file: filePath,
-      icon: iconName
+      icon: iconName,
     });
   } catch (error) {
     console.error('Error starting drag operation:', error);
   }
-})
-
-
-ipcMain.on('read-data', async (event, [partitionId, creatorUuid, bcTokenSha]) => {
-  try {
-    console.log(`Received request to read cookies and send to API for persistId: ${creatorUuid} and bcTokenSha: ${bcTokenSha}`);
-    const url = 'https://onlyfans.com';
-    const cookieNames = ['sess', '_cfuvid', 'auth_id'];
-
-    // Retrieve cookies for the specified URL
-    console.log(`Retrieving cookies for URL: ${url}`);
-    const cookies = await require('electron').session.fromPartition(partitionId).cookies.get({ url });
-    console.log(`Retrieved cookies: ${JSON.stringify(cookies)}`);
-
-    // Filter the cookies to only include the ones you need
-    const filteredCookies = cookies.filter(cookie => cookieNames.includes(cookie.name));
-    console.log(`Filtered cookies: ${JSON.stringify(filteredCookies)}`);
-
-    // Convert cookies to a format suitable for API payload
-    const cookieData = {};
-    filteredCookies.forEach(cookie => {
-      cookieData[cookie.name] = cookie.value;
-    });
-    console.log(`Cookie data prepared for API payload: ${JSON.stringify(cookieData)}`);
-
-    // Prepare payload for the API
-    const payload = {
-      app_settings: {
-        bcTokenSha,
-        cookies: cookieData,
-      },
-    };
-    console.log(`Payload prepared for API: ${JSON.stringify(payload)}`);
-
-    // Send the payload to your API endpoint
-    const response = await fetch(`${API_URL}/api/v2/creator/${creatorUuid}/settings`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-KEY': `${X_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      console.error('Failed to send cookies to API');
-      throw new Error('Failed to send cookies to API');
-    }
-    const result = await response.json();
-    console.log('Data sent successfully:', result);
-    event.reply('read-cookies-and-send-to-api-response', result);
-  } catch (error) {
-    console.error('Error reading cookies or sending to API:', error);
-    event.reply('read-cookies-and-send-to-api-error', error.message);
-  }
 });
+
+ipcMain.on(
+  'read-data',
+  async (event, [partitionId, creatorUuid, bcTokenSha]) => {
+    try {
+      console.log(
+        `Received request to read cookies and send to API for persistId: ${creatorUuid} and bcTokenSha: ${bcTokenSha}`,
+      );
+      const url = 'https://onlyfans.com';
+      const cookieNames = ['sess', '_cfuvid', 'auth_id'];
+
+      // Retrieve cookies for the specified URL
+      console.log(`Retrieving cookies for URL: ${url}`);
+      const cookies = await require('electron')
+        .session.fromPartition(partitionId)
+        .cookies.get({ url });
+      console.log(`Retrieved cookies: ${JSON.stringify(cookies)}`);
+
+      // Filter the cookies to only include the ones you need
+      const filteredCookies = cookies.filter((cookie) =>
+        cookieNames.includes(cookie.name),
+      );
+      console.log(`Filtered cookies: ${JSON.stringify(filteredCookies)}`);
+
+      // Convert cookies to a format suitable for API payload
+      const cookieData = {};
+      filteredCookies.forEach((cookie) => {
+        cookieData[cookie.name] = cookie.value;
+      });
+      console.log(
+        `Cookie data prepared for API payload: ${JSON.stringify(cookieData)}`,
+      );
+
+      // Prepare payload for the API
+      const payload = {
+        app_settings: {
+          bcTokenSha,
+          cookies: cookieData,
+        },
+      };
+      console.log(`Payload prepared for API: ${JSON.stringify(payload)}`);
+
+      // Send the payload to your API endpoint
+      const response = await fetch(
+        `${API_URL}/api/v2/creator/${creatorUuid}/settings`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-KEY': `${X_API_KEY}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        console.error('Failed to send cookies to API');
+        throw new Error('Failed to send cookies to API');
+      }
+      const result = await response.json();
+      console.log('Data sent successfully:', result);
+      event.reply('read-cookies-and-send-to-api-response', result);
+    } catch (error) {
+      console.error('Error reading cookies or sending to API:', error);
+      event.reply('read-cookies-and-send-to-api-error', error.message);
+    }
+  },
+);
 
 ipcMain.on(
   'save-proxy',
@@ -393,5 +409,5 @@ ipcMain.on(
 ipcMain.handle('get-config', () => {
   return {
     path: __dirname,
-  }
+  };
 });
