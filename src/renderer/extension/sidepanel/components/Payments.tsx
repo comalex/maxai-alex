@@ -385,7 +385,7 @@ const PaymentSummary = ({
 
   return (
     <>
-      <Box display="flex" flexDirection="column" gap={4}>
+      <Box display="flex" flexDirection="column" gap={2}>
         {/* <HStack>
           <Box
             borderRadius="4px"
@@ -410,8 +410,45 @@ const PaymentSummary = ({
             </Text>
           </Box>
         </HStack> */}
-        <Box display="flex" gap={1} alignItems="center">
-          <PaymentsTags payments={payments} paymentsData={paymentsData} />
+        <Box width="100%" display="flex" gap={1.5} alignItems="center">
+          <Box width="80%">
+            <PaymentsTags payments={payments} paymentsData={paymentsData} />
+          </Box>
+
+          <Box
+            width="20%"
+            display="flex"
+            gap={2}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <PaymentSyncButton
+              syncPayments={() => syncPayments(true)}
+              isLoading={updatingPaymentsData}
+            />
+            {/* {updatingPaymentsData && <Text color="green">...updating data</Text>} */}
+            <Box
+              display="flex"
+              // gap={1}
+              alignItems="center"
+              cursor="pointer"
+              onClick={() => setShowAllStats(!showAllStats)}
+            >
+              <Text
+                fontSize="10px"
+                fontStyle="normal"
+                fontWeight="500"
+                textColor="#606060"
+              >
+                All Stats
+              </Text>
+              {showAllStats ? (
+                <ChevronUpIcon width="16px" height="16px" />
+              ) : (
+                <ChevronDownIcon width="16px" height="16px" />
+              )}
+            </Box>
+          </Box>
         </Box>
         {!showAllStats && (
           <Box width="100%" display="flex" gap={2} alignContent="center">
@@ -425,7 +462,7 @@ const PaymentSummary = ({
                   display="flex"
                   flexDirection="column"
                   gap={2}
-                  p={3}
+                  p={2}
                   backgroundColor="#EFEEEF"
                   borderRadius="10px"
                 >
@@ -492,7 +529,7 @@ const PaymentSummary = ({
                   display="flex"
                   flexDirection="column"
                   gap={2}
-                  p={3}
+                  p={2}
                   backgroundColor="#EFEEEF"
                   borderRadius="10px"
                 >
@@ -563,7 +600,7 @@ const PaymentSummary = ({
                     display="flex"
                     flexDirection="column"
                     gap={2}
-                    p={3}
+                    p={2}
                     backgroundColor="#EFEEEF"
                     borderRadius="10px"
                   >
@@ -641,7 +678,7 @@ const PaymentSummary = ({
                     display="flex"
                     flexDirection="column"
                     gap={2}
-                    p={3}
+                    p={2}
                     backgroundColor="#EFEEEF"
                     borderRadius="10px"
                   >
@@ -833,7 +870,7 @@ const PaymentSummary = ({
             )}
           </Box>
         )}
-        <Box
+        {/* <Box
           width="100%"
           display="flex"
           justifyContent="space-between"
@@ -862,7 +899,7 @@ const PaymentSummary = ({
               <ChevronDownIcon width="20px" height="20px" />
             )}
           </Box>
-        </Box>
+        </Box> */}
       </Box>
       {/* <div>
       <Table variant="simple" size="sm">

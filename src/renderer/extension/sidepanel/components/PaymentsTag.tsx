@@ -107,11 +107,13 @@ const PaymentsTag = ({
             ? currentDataForTag.backgroundColor
             : ""
         }
-        py="4px"
-        px="9px"
+        display="flex"
+        alignItems="center"
+        // py="2px"
+        px="6px"
       >
         <Text
-          fontSize="12px"
+          fontSize="10px"
           fontWeight={600}
           color={currentDataForTag.textColor}
         >

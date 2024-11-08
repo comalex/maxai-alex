@@ -58,14 +58,14 @@ export const useMessages = (): {
           message.content.startsWith("<") && message.content.endsWith(">")
             ? "media"
             : "text";
-        // const formattedContent =
-        //   messageType === "text"
-        //     ? require("crypto")
-        //         .createHash("sha256")
-        //         .update(JSON.stringify(message.content))
-        //         .digest("hex")
-        //     : message.content;
-        const formattedContent = message.content;
+        const formattedContent =
+          messageType === "text"
+            ? require("crypto")
+                .createHash("sha256")
+                .update(JSON.stringify(message.content))
+                .digest("hex")
+            : message.content;
+
         return {
           external_id: message.id,
           user_id: userId,

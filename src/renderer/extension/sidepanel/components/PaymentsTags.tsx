@@ -213,7 +213,7 @@ const PaymentsTags = ({ payments, paymentsData }: PaymentsTagsProps) => {
         color="white"
         borderRadius="20px"
       >
-        <BasketIcon width="16px" height="16px" />
+        <BasketIcon width="10px" height="10px" />
         <Text>{persentageOfPaidPurchases}%</Text>
       </Box>
       {currentUserSumForMonth >= whaleThreshold && (
