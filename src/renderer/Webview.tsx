@@ -69,8 +69,11 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
 }) => {
   const [ipcResponseReceived, setIpcResponseReceived] = useState(false);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
-  const [blurLevel, setBlurLevel] = useState(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sfwStatus, setSfwStatus] = useState(() => {
+    const storedStatus = localStorage.getItem('sfwStatus');
+    return storedStatus ? storedStatus : 'nsfw';
+  });
   const partitionId = `persist:${id}`;
   const isReadyToLoad = true && ipcResponseReceived;
   const webviewRef = useRef(null);
@@ -102,8 +105,11 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
     if (isWebViewReady) {
       addListenerOnClicks(webviewRef?.current);
       autoSaveCookies(webviewRef?.current, partitionId, creatorUUID);
+      if (sfwStatus === 'sfw') {
+        injectBlurScript(webviewRef?.current, 10);
+      }
     }
-  }, [isReadyToLoad, isWebViewReady]);
+  }, [isReadyToLoad, isWebViewReady, sfwStatus]);
 
   useEffect(() => {
     const webview = webviewRef?.current;
@@ -143,21 +149,20 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
       console.error('Webview element not found or bcTokenSha not set');
     }
   };
+
+  const toggleSfwStatus = () => {
+    const newStatus = sfwStatus === 'sfw' ? 'nsfw' : 'sfw';
+    setSfwStatus(newStatus);
+    localStorage.setItem('sfwStatus', newStatus);
+  };
+
   return (
     <div>
       <button
         className="btn"
-        onClick={() => injectBlurScript(webviewRef?.current, blurLevel)}
+        onClick={toggleSfwStatus}
       >
-        Blur Images
-      </button>
-      <button
-        className="btn"
-        onClick={() =>
-          saveCookies(webviewRef?.current, partitionId, creatorUUID)
-        }
-      >
-        Save Cookies
+        {sfwStatus === 'sfw' ? 'NSFW' : 'SFW'}
       </button>
       <button
         className="btn"
@@ -165,7 +170,7 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
           getMyIp(webviewRef?.current);
         }}
       >
-        Get My IP
+        Check Proxy
       </button>
       <button
         className="btn"
@@ -174,9 +179,6 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
         }}
       >
         Proxy
-      </button>
-      <button className="btn" onClick={() => handleWebviewLoad(authData)}>
-        Sync Auth
       </button>
       {isModalOpen && (
         <ProxyModal
