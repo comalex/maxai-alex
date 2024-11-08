@@ -85,6 +85,42 @@ export const injectBlurScript = (webview: WebviewTag, blurLevel: number) => {
   );
 };
 
+
+export const addScrollListener = (webview: WebviewTag) => {
+  return executeJavaScriptWithCatch(
+    webview,
+    `
+      let observeScrollbar = () => {
+        const debounce = (func, wait) => {
+          let timeout;
+          return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+          };
+        };
+
+        const handleScroll = debounce(() => {
+          console.log("Scroll event detected in chat messages container");
+          window.electron.ipcRenderer.sendMessage('ipc-inject', ["${EXTENSION_MESSAGE_TYPES.FROM_FE}", { event: "scroll" }]);
+        }, 500);
+
+        const observer = new MutationObserver((mutations, obs) => {
+          const chatScrollbar = document.querySelector(".b-chats__scrollbar");
+          if (chatScrollbar) {
+            chatScrollbar.addEventListener("scroll", handleScroll);
+            obs.disconnect();
+          }
+        });
+
+        observer.observe(document, { childList: true, subtree: true });
+      };
+
+      observeScrollbar();
+    `,
+  );
+};
+
+
 export const addListenerOnClicks = (webview) => {
   return executeJavaScriptWithCatch(
     webview,

@@ -11,6 +11,7 @@ import {
   autoSaveCookies,
   injectBlurScript,
   getMyIp,
+  addScrollListener,
 } from './utils';
 
 interface WebviewProps {
@@ -91,9 +92,9 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
   }, []);
 
   useEffect(() => {
-    const handleIpcInjectResponse = (event: any, response: any) => {
-      console.log('Received ipc-inject-response:', response, 'Event:', event);
-      sendMessage({ type: event, currentWebviewId: id, socketApi: true });
+    const handleIpcInjectResponse = (event: any, payload: any = {}) => {
+      console.log('Received ipc-inject-response:', payload, 'Event:', event);
+      sendMessage({ type: event, payload, currentWebviewId: id, socketApi: true });
     };
     return window.electron.ipcRenderer.on(
       'ipc-inject-response',
@@ -103,13 +104,19 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
 
   useEffect(() => {
     if (isWebViewReady) {
-      addListenerOnClicks(webviewRef?.current);
-      autoSaveCookies(webviewRef?.current, partitionId, creatorUUID);
-      if (sfwStatus === 'sfw') {
-        injectBlurScript(webviewRef?.current, 10);
-      }
+      setTimeout(() => {
+        addScrollListener(webviewRef?.current);
+        addListenerOnClicks(webviewRef?.current);
+        autoSaveCookies(webviewRef?.current, partitionId, creatorUUID);
+      }, 1000);
     }
-  }, [isReadyToLoad, isWebViewReady, sfwStatus]);
+  }, [isReadyToLoad, isWebViewReady]);
+
+  useEffect(() => {
+    if (isWebViewReady && sfwStatus === 'sfw') {
+      injectBlurScript(webviewRef?.current, 10);
+    }
+  }, [isWebViewReady, sfwStatus]);
 
   useEffect(() => {
     const webview = webviewRef?.current;

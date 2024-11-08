@@ -126,9 +126,9 @@ app.on('login', (event, webContents, request, authInfo, callback) => {
 
 app.whenReady().then(createWindow).catch(console.log);
 
-ipcMain.on('ipc-inject', async (event, [type]) => {
-  console.log('ipc-inject event received with arguments:', type);
-  mainWindow.webContents.send('ipc-inject-response', type);
+ipcMain.on('ipc-inject', async (event, [type, payload]) => {
+  console.log('ipc-inject event received with arguments:', type, payload);
+  mainWindow.webContents.send('ipc-inject-response', type, payload);
 });
 
 ipcMain.on(
