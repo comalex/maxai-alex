@@ -299,8 +299,13 @@ ipcMain.on(
 
       // Filter the cookies to only include the ones you need
       const filteredCookies = cookies.filter((cookie) =>
-        cookieNames.includes(cookie.name),
+        cookieNames.includes(cookie.name) && cookie.value !== ""
       );
+
+      if (filteredCookies.length === 0 || filteredCookies.some(cookie => cookie.value === "")) {
+        console.error('One or more required cookies are missing or empty.');
+        return;
+      }
       console.log(`Filtered cookies: ${JSON.stringify(filteredCookies)}`);
 
       // Convert cookies to a format suitable for API payload
