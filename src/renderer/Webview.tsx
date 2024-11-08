@@ -73,54 +73,13 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const partitionId = `persist:${id}`;
   const isReadyToLoad = true && ipcResponseReceived;
-
   const webviewRef = useRef(null);
-
-  useEffect(() => {
-    const webview = webviewRef.current;
-    // Function to handle when the webview finishes loading
-    const handleDidFinishLoad = () => {
-      window.electron.ipcRenderer.sendMessage('authSync', [
-        partitionId,
-        creatorUUID,
-        authData,
-      ]);
-    };
-
-    // Ensure the event listener is set
-    if (webview) {
-      (webview as any).addEventListener('did-finish-load', handleDidFinishLoad);
-    }
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      if (webview) {
-        (webview as any).removeEventListener(
-          'did-finish-load',
-          handleDidFinishLoad,
-        );
-      }
-    };
-  }, [authData, creatorUUID, partitionId]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!ipcResponseReceived) {
-        handleWebviewLoad(authData);
-      }
-    }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, [ipcResponseReceived, authData]);
 
   useEffect(() => {
     const handleIpcResponse = (arg: any) => {
       console.log('handleIpcResponse', arg);
       setIpcResponseReceived(true);
-      if (!localStorage.getItem(`reloaded_${id}`)) {
-        webviewRef?.current.reload();
-        localStorage.setItem(`reloaded_${id}`, 'true');
-      }
+      webviewRef?.current.reload();
     };
     return window.electron.ipcRenderer.on(
       'authSync-response',
