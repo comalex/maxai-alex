@@ -123,21 +123,19 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
     const webview = document.getElementById(id) as any;
     if (webview) {
       if (auth?.app_settings?.bcTokenSha) {
-        console.log(
-          'auth?.app_settings?.bcTokenSha',
-          auth?.app_settings?.bcTokenSha,
-        );
-        executeJavaScriptWithCatch(
-          webview,
-          `
-          localStorage.setItem('bcTokenSha', '${auth?.app_settings?.bcTokenSha}');
-        `,
-        );
-        window.electron.ipcRenderer.sendMessage('authSync', [
-          partitionId,
-          creatorUUID,
-          auth,
-        ]);
+        setTimeout(() => {
+          executeJavaScriptWithCatch(
+            webview,
+            `
+            localStorage.setItem('bcTokenSha', '${auth?.app_settings?.bcTokenSha}');
+          `,
+          );
+          window.electron.ipcRenderer.sendMessage('authSync', [
+            partitionId,
+            creatorUUID,
+            auth,
+          ]);
+        }, 1000);
       } else {
         setIpcResponseReceived(true);
       }

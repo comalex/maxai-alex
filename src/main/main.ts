@@ -202,31 +202,20 @@ ipcMain.on(
 
     let cookiesStatus = 'Cookies set successfully';
     try {
-      const allCookies = await session.cookies.get({});
+      // const allCookies = await session.cookies.get({});
       // console.log('All cookies:', allCookies);
       await Promise.all(
         cookies.map(async (cookie) => {
           try {
-            await Promise.all(
-              allCookies.map(async (cookie) => {
-                try {
-                  await session.cookies.remove(cookie.domain, cookie.name);
-                  // console.log(
-                  //   `Removed cookie: ${cookie.domain} ${cookie.name}`,
-                  // );
-                } catch (error) {
-                  console.error(
-                    `Failed to remove cookie: ${cookie.name}`,
-                    error,
-                  );
-                }
-              }),
-            );
+            await session.cookies.remove(cookie.url, cookie.name);
+            await session.cookies.remove("https://onlyfans.com/", cookie.name);
+            await session.cookies.remove("https://onlyfans.com", cookie.name);
+            await session.cookies.remove("onlyfans.com", cookie.name);
+            await session.cookies.set(cookie);
+            console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`);
           } catch (error) {
-            console.error(`Error setting cookie ${cookie.name}:`, error);
+            console.error(`Error handling cookie ${cookie.name}:`, error);
           }
-          await session.cookies.set(cookie);
-          console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`);
         }),
       );
       // cookies.forEach((cookie) => console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`));
