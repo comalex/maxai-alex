@@ -19,5 +19,4 @@ codesign --deep --force --verbose --sign - node_modules/electron/dist/Electron.a
 yarn start
 in new window
 yarn start:electron
- 
- 
+  
