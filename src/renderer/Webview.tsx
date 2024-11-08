@@ -113,10 +113,12 @@ const Webview: React.FC<WebviewProps & { authData: AuthData }> = ({
 
   useEffect(() => {
     const webview = webviewRef?.current;
-    if (webview && authData && authData?.app_settings?.bcTokenSha) {
+    if (webview) {
       const handleDomReady = () => {
         setIsWebViewReady(true);
-        handleWebviewLoad(authData);
+        if (authData && authData?.app_settings?.bcTokenSha) {
+          handleWebviewLoad(authData);
+        }
         webview.setZoomLevel(0.7);
         webview.setZoomFactor(0.7);
         webview.removeEventListener('dom-ready', handleDomReady);
