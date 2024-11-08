@@ -69,7 +69,6 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
     getCreatorSettings();
   }, []);
 
-
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     setSaving(true);
@@ -81,39 +80,39 @@ const ProxyModal: React.FC<ProxyModalProps> = ({
     const proxyUsername = formData.get('proxy-username') as string;
     const proxyPassword = formData.get('proxy-password') as string;
 
-    const webview = document.getElementById(
-      elem_id,
-    ) as HTMLWebViewElement | null;
-    if (webview) {
-      webview
-        .executeJavaScript('localStorage.getItem("bcTokenSha");', false)
-        .then((bcTokenSha: string | null) => {
-          if (bcTokenSha) {
-            window.electron.ipcRenderer.sendMessage('save-proxy', [
-              creatorUUID,
-              bcTokenSha,
-              proxyType,
-              proxyHost,
-              proxyPort,
-              proxyUsername,
-              proxyPassword,
-            ]);
-            getProxyList();
-            setShowAddProxyForm(false);
-          } else {
-            console.error('bcTokenSha is null');
-          }
-        })
-        .catch((error: Error) => {
-          console.error('Error executing JavaScript in webview:', error);
-        })
-        .finally(() => {
-          setSaving(false);
-        });
-    } else {
-      console.error('Webview element not found');
-      setSaving(false);
-    }
+    const payload = {
+      of_account_uuid: creatorUUID,
+      type: proxyType,
+      host: proxyHost,
+      port: proxyPort,
+      username: proxyUsername,
+      password: proxyPassword,
+    };
+
+    fetch(`${API_URL}/api/v2/proxy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': `${X_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 'success') {
+          console.log('Proxy saved successfully:', data);
+          getProxyList();
+          setShowAddProxyForm(false);
+        } else {
+          console.error('Error saving proxy:', data.message);
+        }
+      })
+      .catch((error) => {
+        console.error('Error during proxy save:', error);
+      })
+      .finally(() => {
+        setSaving(false);
+      });
   }
 
   function updateAccount() {

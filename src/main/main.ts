@@ -103,7 +103,7 @@ app.on('window-all-closed', () => {
 //   callback(true); // Allow the connection despite the certificate error
 // });
 
-let PROXIES: { [key: string]: Proxy } = {};
+const PROXIES: { [key: string]: Proxy } = {};
 
 app.on('login', (event, webContents, request, authInfo, callback) => {
   event.preventDefault();
@@ -208,9 +208,9 @@ ipcMain.on(
         cookies.map(async (cookie) => {
           try {
             await session.cookies.remove(cookie.url, cookie.name);
-            await session.cookies.remove("https://onlyfans.com/", cookie.name);
-            await session.cookies.remove("https://onlyfans.com", cookie.name);
-            await session.cookies.remove("onlyfans.com", cookie.name);
+            await session.cookies.remove('https://onlyfans.com/', cookie.name);
+            await session.cookies.remove('https://onlyfans.com', cookie.name);
+            await session.cookies.remove('onlyfans.com', cookie.name);
             await session.cookies.set(cookie);
             console.log(`Cookie set: ${cookie.name}, Value: ${cookie.value}`);
           } catch (error) {
@@ -338,54 +338,6 @@ ipcMain.on(
           body: JSON.stringify(payload),
         },
       );
-
-      if (!response.ok) {
-        console.error('Failed to send cookies to API');
-        throw new Error('Failed to send cookies to API');
-      }
-      const result = await response.json();
-      console.log('Data sent successfully:', result);
-      event.reply('read-cookies-and-send-to-api-response', result);
-    } catch (error) {
-      console.error('Error reading cookies or sending to API:', error);
-      event.reply('read-cookies-and-send-to-api-error', error.message);
-    }
-  },
-);
-
-ipcMain.on(
-  'save-proxy',
-  async (
-    event,
-    [
-      creatorUuid,
-      bcTokenSha,
-      proxyType,
-      proxyHost,
-      proxyPort,
-      proxyUsername,
-      proxyPassword,
-    ],
-  ) => {
-    try {
-      const payload = {
-        bcTokenSha,
-        of_account_uuid: creatorUuid,
-        type: proxyType,
-        host: proxyHost,
-        port: proxyPort,
-        username: proxyUsername,
-        password: proxyPassword,
-      };
-      const response = await fetch(`${API_URL}/api/v2/proxy`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-KEY': `${X_API_KEY}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      console.log('Response:', response);
 
       if (!response.ok) {
         console.error('Failed to send cookies to API');
