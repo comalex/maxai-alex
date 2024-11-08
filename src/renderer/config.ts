@@ -2,7 +2,14 @@
 // export const API_URL = 'https://api.trymax.ai';
 
 
+// development
+export const PORTAL_URL = "https://dev-portal.pdfviewer.click"
 export const API_URL = 'https://dev-api.trymax.ai';
 export const SOCKETS_API_URL = 'http://143.110.177.6:8080';
 export const X_API_KEY = 'maxai_app_key';
-export const AGENCY_UUID = '31fb88f3-37cd-11ef-9dc1-06a2c2485a11';
+
+//production
+// export const PORTAL_URL = "https://portal.pdfviewer.click"
+// export const API_URL = 'https://api.trymax.ai';
+// export const SOCKETS_API_URL = 'https://sockets.pdfviewer.click';
+// export const X_API_KEY = 'maxai_app_key';

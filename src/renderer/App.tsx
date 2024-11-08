@@ -3,6 +3,7 @@ import TabsContainer from './components/TabsContainer';
 import '@sinm/react-chrome-tabs/css/chrome-tabs.css';
 import '@sinm/react-chrome-tabs/css/chrome-tabs-dark-theme.css';
 import { useEffect, useState } from 'react';
+import { PORTAL_URL } from './config';
 
 export default function App() {
   const [config, setConfig] = useState('');
@@ -34,7 +35,7 @@ export default function App() {
       </button>
       {showPortal ? (
         <webview
-          src="https://dev-portal.pdfviewer.click/"
+          src={PORTAL_URL}
           style={{ width: '100vw', height: '100vh', border: 'none' }}
         />
       ) : (
