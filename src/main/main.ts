@@ -143,7 +143,8 @@ ipcMain.on(
     const session = require('electron').session.fromPartition(partitionId);
     let proxyStatus = 'No proxy information provided in auth data';
     if (proxy && proxy.host) {
-      const { host, port, type } = proxy;
+      let { host, port, type } = proxy;
+      type = null;
       const proxyRules = type
         ? `${type}=${host}:${port}`
         : `http=${host}:${port};https=${host}:${port};socks5=${host}:${port}`;
@@ -210,9 +211,9 @@ ipcMain.on(
               allCookies.map(async (cookie) => {
                 try {
                   await session.cookies.remove(cookie.domain, cookie.name);
-                  console.log(
-                    `Removed cookie: ${cookie.domain} ${cookie.name}`,
-                  );
+                  // console.log(
+                  //   `Removed cookie: ${cookie.domain} ${cookie.name}`,
+                  // );
                 } catch (error) {
                   console.error(
                     `Failed to remove cookie: ${cookie.name}`,
