@@ -38,7 +38,7 @@ const ConfirmDragEndModal: React.FC<ConfirmDragEndModalProps> = ({
   fetchMediaItems,
   fileLoading
 }) => {
-  const { account, customVaultId, agency, checkProcessingStatus } = useGlobal();
+  const { account, customVaultId, agency, checkProcessingStatus, currentWebviewId } = useGlobal();
   const { linkPaymentToVault } = usePayments();
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessingInOF, setIsProcessingInOf] = useState(false);
@@ -46,11 +46,11 @@ const ConfirmDragEndModal: React.FC<ConfirmDragEndModalProps> = ({
   const handleConfirm = async () => {
     setIsLoading(true);
     try {
-      let isProcessing = await checkProcessingStatus();
+      let isProcessing = await checkProcessingStatus(currentWebviewId);
       while (isProcessing) {
         setIsProcessingInOf(true);
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        isProcessing = await checkProcessingStatus();
+        isProcessing = await checkProcessingStatus(currentWebviewId);
       }
       setIsProcessingInOf(false);
       await linkPaymentToVault({

@@ -200,9 +200,10 @@ function IndexSidePanel({ tab }) {
     }
   }, [accountId]);
 
-  const checkProcessingStatus = async () => {
+  const checkProcessingStatus = async (currentWebviewId) => {
     const { success, data } = await sendToBackground({
       name: "retrieve-data",
+      currentWebviewId,
       body: {
         type: EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE
       }

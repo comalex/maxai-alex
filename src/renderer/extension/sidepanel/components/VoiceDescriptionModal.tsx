@@ -34,7 +34,8 @@ const VoiceDescriptionModal: React.FC<VoiceDescriptionModalProps> = ({
     account,
     agency,
     jwtToken,
-    checkProcessingStatus
+    checkProcessingStatus,
+    currentWebviewId,
   } = useGlobal();
   const { getMessagesContent } = useMessages();
   const [savingDescription, setSavingDescription] = useState(false);
@@ -93,12 +94,12 @@ const VoiceDescriptionModal: React.FC<VoiceDescriptionModalProps> = ({
     setWarningMessage(false);
     setSavingDescription(true);
 
-    let isProcessing = await checkProcessingStatus();
+    let isProcessing = await checkProcessingStatus(currentWebviewId);
     if (isProcessing) {
       setIsProcessing(true);
       while (isProcessing) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        isProcessing = await checkProcessingStatus();
+        isProcessing = await checkProcessingStatus(currentWebviewId);
       }
       setIsProcessing(false);
       await saveDescription();

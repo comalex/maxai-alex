@@ -36,7 +36,7 @@ _onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(attachUrlChangeListener());
       break;
     case EXTENSION_MESSAGE_TYPES.CHECK_PROCESSING_MESSAGE:
-      sendResponse(isProcessingContentPresent());
+      isProcessingContentPresent(currentWebviewId).then(response => sendResponse({ status: "Message received" }));
       break;
     case EXTENSION_MESSAGE_TYPES.RETRIEVE_ONLY_FANS_SUBS:
       sendResponse(parseSubsFun());

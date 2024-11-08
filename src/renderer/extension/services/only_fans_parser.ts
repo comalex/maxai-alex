@@ -288,7 +288,8 @@ export const parsePayments = (document: Document): Payment[] => {
   return adjustedMessages;
 };
 
-export const isProcessingContentPresent = (): boolean => {
+export const isProcessingContentPresent = async (): boolean => {
+  const doc = await getDocument(currentWebviewId);
   const processingContentElement = doc.querySelector(
     "div.b-processing-content"
   );
